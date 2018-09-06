@@ -1,0 +1,18 @@
+{
+    "contents" : "##Understory data formatting\n##\nlibrary(\"reshape2\")\nlibrary(\"plyr\")\nlibrary(\"effects\")\n\ndaub <- read.csv(\"daub_cover.csv\")\n  daub$Midpoint.value <- as.numeric(as.character((daub$Midpoint.value)))\ntrees <- read.csv(\"trees_updated_with_logs_041716.csv\")\ntree_pdc <- read.csv(\"all_trees_with_delta_and_ENN_041916.csv\")\ngreenwood_under <- read.csv(\"Greenwood_Understory_Variables_SF_edits.csv\")\ntcover <- read.csv(\"tree_and_shrub_cover_020815.csv\")\n  names(tcover)[3] <- \"Shrub_cover_li\"\nsource(\"calculate_awc.R\")\nsoil <- calculate_awc()\nclim <- read.csv(\"ALL_climate_variables.csv\")\n  names(clim)[2] <- \"Plot\"\nother_vars <- read.csv(\"all_vars_EXPORT.csv\")\n\n\n#remaking data into plot average cover\nplot_daub_cover <- dcast(daub, Plot ~ Cover.type, value.var = \"Midpoint.value\", fun.aggregate = mean)\nnames(plot_daub_cover) <- c(\"Plot\", \"Aforb\", \"Bg\", \"Cheatgrass\", \"Crust\", \"Gravel\", \"Litter\",\n                            \"Agrass\", \"Pforb\", \"Pgrass\", \"Rock\", \"Shrub\")\n#-------------------------------------------------------------\n#Create tree data plot-level\nfor (i in which(sapply(trees, is.numeric))) {\n  for (j in which(is.na(trees[, i]))) {\n    trees[j, i] <- mean(trees[trees[, \"Plot\"] == trees[j, \"Plot\"], i],  na.rm = TRUE)\n  }\n}\n\nplot_trees <- data.frame(Plot = character(101),\n                         Live_ba = numeric(101),\n                         Dead_ba = numeric(101),\n                         Total_ba = numeric(101),\n                         Dead_rat = numeric(101),\n                         Delta_pdc = numeric(101))\n\nplot_trees$Plot <- as.character(unique(plot_daub_cover$Plot))\n\nfor(i in (1:nrow(plot_trees))){\n  plot_trees$Live_ba[i] <- sum(trees[trees$Live == \"Y\" & trees$Plot == as.character(plot_trees$Plot[i]), ]$BA_cm,\n                               na.rm = TRUE)\n  plot_trees$Dead_ba[i] <- sum(trees[trees$Live == \"N\" & trees$Plot == as.character(plot_trees$Plot[i]), ]$BA_cm,\n                               na.rm = TRUE)\n  plot_trees$Total_ba[i] <- sum(trees[trees$Plot == as.character(plot_trees$Plot[i]), ]$BA_cm, na.rm = TRUE)\n  plot_trees$Dead_rat[i] <- plot_trees$Dead_ba[i] / plot_trees$Total_ba[i]\n  plot_trees$Delta_pdc[i] <- weighted.mean(tree_pdc[tree_pdc$Plot == as.character(plot_trees$Plot[i]), \"Delta_pdc\"],\n                                        tree_pdc[tree_pdc$Plot == as.character(plot_trees$Plot[i]), \"BA_cm\"])\n}\n\n#-----------------------------------------------\n# Plot-level cover for everything and also predictor variables\n\n#fill in any NAs\n\n\nplot_data <- join(plot_daub_cover, plot_trees, by = c(\"Plot\"))\nplot_data <- join(plot_data, clim[, c(\"Plot\", \"cwd_normal_cum\")], by = \"Plot\")\nplot_data <- join(plot_data, soil[, c(\"Plot\", \"AWC\")], by = \"Plot\")\nplot_data <- join(plot_data, tcover[, c(\"Plot\", \"Tree_cover\", \"Shrub_cover_li\")], by = \"Plot\")\nplot_data <- join(plot_data, other_vars[, c(\"Plot\", \"Cluster\", \"Avg_depth\")], by = \"Plot\")\n\n\nfor (i in which(sapply(plot_data, is.numeric))) {\n  for (j in which(is.na(plot_data[, i]))) {\n    plot_data[j, i] <- mean(plot_data[, i],  na.rm = TRUE)\n  }\n}\n  ",
+    "created" : 1462470745210.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "3861277839",
+    "id" : "5507BF20",
+    "lastKnownWriteTime" : 1464549426,
+    "path" : "C:/Users/sflake/Google Drive/Thesis related/Understory/understory_data_prep.R",
+    "project_path" : "understory_data_prep.R",
+    "properties" : {
+        "tempName" : "Untitled1"
+    },
+    "relative_order" : 1,
+    "source_on_save" : false,
+    "type" : "r_source"
+}

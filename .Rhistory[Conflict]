@@ -1,0 +1,512 @@
+lines(exp(preds_pdc_90_pf$predictions) ~ I(preds_pdc_90_cg$predictor), lwd = 2, lty = 3, col = "#7570b3")
+lines(exp(preds_pdc_90_sh$predictions) ~ I(preds_pdc_90_cg$predictor), lwd = 2, lty = 4, col = "#e7298a")
+axis(side = 1)
+axis(side = 2)
+text(x = -30, y = .09, labels = "90% CWD", cex = 1.3)
+plot(NA,
+ylim = c(0,.1),
+xlim = c(min(ag_data$Tree_cover)*100, max(ag_data$Tree_cover)*100),
+xlab = "",
+ylab = "",
+bg='grey60',
+col = 'grey30',
+pch = 21,
+cex.lab = 1.5,
+bty = 'n',
+xaxt = 'n',
+yaxt = 'n')
+lines(exp(preds_tc_cg$predictions) ~ I(preds_tc_cg$predictor*100), lwd = 2, lty = 1, col = "#1b9e77")
+lines(exp(preds_tc_pg$predictions) ~ I(preds_tc_cg$predictor*100), lwd = 2, lty = 2, col = "#d95f02")
+lines(exp(preds_tc_pf$predictions) ~ I(preds_tc_cg$predictor*100), lwd = 2, lty = 3, col = "#7570b3")
+lines(exp(preds_tc_sh$predictions) ~ I(preds_tc_cg$predictor*100(), lwd = 2, lty = 4, col = "#e7298a")
+axis(side = 1)
+axis(side = 2)
+mtext(text = "Tree Cover (%)", side = 1, line = 2.2)
+mtext(text = "Predicted Cover", side = 2, outer = TRUE, line = 2, cex = 1)
+plot(NA,
+ylim = c(0,.1),
+xlim = c(min(ag_data$AWC), max(ag_data$AWC)),
+xlab = "",
+ylab = "",
+bg='grey60',
+col = 'grey30',
+pch = 21,
+cex.lab = 1.5,
+bty = 'n',
+xaxt = 'n',
+yaxt = 'n')
+lines(exp(preds_awc_cg$predictions) ~ I(preds_awc_cg$predictor), lwd = 2, lty = 1, col = "#1b9e77")
+lines(exp(preds_awc_pg$predictions) ~ I(preds_awc_cg$predictor), lwd = 2, lty = 2, col = "#d95f02")
+lines(exp(preds_awc_pf$predictions) ~ I(preds_awc_cg$predictor), lwd = 2, lty = 3, col = "#7570b3")
+lines(exp(preds_awc_sh$predictions) ~ I(preds_awc_cg$predictor), lwd = 2, lty = 4, col = "#e7298a")
+axis(side = 1)
+axis(side = 2)
+mtext(text = "Soil AWC (%)", side = 1, line = 2.2)
+plot.new()
+legend("topright", legend = c("Cheatgrass", "Perr. Grass", "Perr. Forb", "Shrub"),
+lty = c(1,2,3,4), lwd = 2, cex = 1.3, col = c("#1b9e77", "#d95f02", "#7570b3", "#e7298a"))
+plot(NA,
+ylim = c(0,.1),
+xlim = c(min(ag_data$Delta_pdc), max(ag_data$Delta_pdc)),
+xlab = "",
+ylab = "",
+bg='grey60',
+col = 'grey30',
+pch = 21,
+cex.lab = 1.5,
+bty = 'n',
+xaxt = 'n',
+yaxt = 'n')
+lines(exp(preds_pdc_10_cg$predictions) ~ I(preds_pdc_10_cg$predictor), lwd = 2, lty = 1, col = "#1b9e77")
+lines(exp(preds_pdc_10_pg$predictions) ~ I(preds_pdc_10_cg$predictor), lwd = 2, lty = 2, col = "#d95f02")
+lines(exp(preds_pdc_10_pf$predictions) ~ I(preds_pdc_10_cg$predictor), lwd = 2, lty = 3, col = "#7570b3")
+lines(exp(preds_pdc_10_sh$predictions) ~ I(preds_pdc_10_cg$predictor), lwd = 2, lty = 4, col = "#e7298a")
+axis(side = 1)
+axis(side = 2)
+text(x = -30, y = .09, labels = "10% CWD", cex = 1.3)
+plot(NA,
+ylim = c(0,.1),
+xlim = c(min(ag_data$Delta_pdc), max(ag_data$Delta_pdc)),
+xlab = "",
+ylab = "",
+bg='grey60',
+col = 'grey30',
+pch = 21,
+cex.lab = 1.5,
+bty = 'n',
+xaxt = 'n',
+yaxt = 'n')
+lines(exp(preds_pdc_50_cg$predictions) ~ I(preds_pdc_90_cg$predictor), lwd = 2, lty = 1, col = "#1b9e77")
+lines(exp(preds_pdc_50_pg$predictions) ~ I(preds_pdc_90_cg$predictor), lwd = 2, lty = 2, col = "#d95f02")
+lines(exp(preds_pdc_50_pf$predictions) ~ I(preds_pdc_90_cg$predictor), lwd = 2, lty = 3, col = "#7570b3")
+lines(exp(preds_pdc_50_sh$predictions) ~ I(preds_pdc_90_cg$predictor), lwd = 2, lty = 4, col = "#e7298a")
+axis(side = 1)
+axis(side = 2)
+text(x = -30, y = .09, labels = "50% CWD", cex = 1.3)
+mtext(text = "Change in Live Crown (%)", side = 1, line = 2.2)
+plot(NA,
+ylim = c(0,.1),
+xlim = c(min(ag_data$Delta_pdc), max(ag_data$Delta_pdc)),
+xlab = "",
+ylab = "",
+bg='grey60',
+col = 'grey30',
+pch = 21,
+cex.lab = 1.5,
+bty = 'n',
+xaxt = 'n',
+yaxt = 'n')
+lines(exp(preds_pdc_90_cg$predictions) ~ I(preds_pdc_90_cg$predictor), lwd = 2, lty = 1, col = "#1b9e77")
+lines(exp(preds_pdc_90_pg$predictions) ~ I(preds_pdc_90_cg$predictor), lwd = 2, lty = 2, col = "#d95f02")
+lines(exp(preds_pdc_90_pf$predictions) ~ I(preds_pdc_90_cg$predictor), lwd = 2, lty = 3, col = "#7570b3")
+lines(exp(preds_pdc_90_sh$predictions) ~ I(preds_pdc_90_cg$predictor), lwd = 2, lty = 4, col = "#e7298a")
+axis(side = 1)
+axis(side = 2)
+text(x = -30, y = .09, labels = "90% CWD", cex = 1.3)
+plot(NA,
+ylim = c(0,.1),
+xlim = c(I(min(ag_data$Tree_cover)*100), I(max(ag_data$Tree_cover)*100)),
+xlab = "",
+ylab = "",
+bg='grey60',
+col = 'grey30',
+pch = 21,
+cex.lab = 1.5,
+bty = 'n',
+xaxt = 'n',
+yaxt = 'n')
+lines(exp(preds_tc_cg$predictions) ~ I(preds_tc_cg$predictor*100), lwd = 2, lty = 1, col = "#1b9e77")
+lines(exp(preds_tc_pg$predictions) ~ I(preds_tc_cg$predictor*100), lwd = 2, lty = 2, col = "#d95f02")
+lines(exp(preds_tc_pf$predictions) ~ I(preds_tc_cg$predictor*100), lwd = 2, lty = 3, col = "#7570b3")
+lines(exp(preds_tc_sh$predictions) ~ I(preds_tc_cg$predictor*100), lwd = 2, lty = 4, col = "#e7298a")
+axis(side = 1)
+axis(side = 2)
+mtext(text = "Tree Cover (%)", side = 1, line = 2.2)
+mtext(text = "Predicted Cover", side = 2, outer = TRUE, line = 2, cex = 1)
+plot(NA,
+ylim = c(0,.1),
+xlim = c(min(ag_data$AWC), max(ag_data$AWC)),
+xlab = "",
+ylab = "",
+bg='grey60',
+col = 'grey30',
+pch = 21,
+cex.lab = 1.5,
+bty = 'n',
+xaxt = 'n',
+yaxt = 'n')
+lines(exp(preds_awc_cg$predictions) ~ I(preds_awc_cg$predictor), lwd = 2, lty = 1, col = "#1b9e77")
+lines(exp(preds_awc_pg$predictions) ~ I(preds_awc_cg$predictor), lwd = 2, lty = 2, col = "#d95f02")
+lines(exp(preds_awc_pf$predictions) ~ I(preds_awc_cg$predictor), lwd = 2, lty = 3, col = "#7570b3")
+lines(exp(preds_awc_sh$predictions) ~ I(preds_awc_cg$predictor), lwd = 2, lty = 4, col = "#e7298a")
+axis(side = 1)
+axis(side = 2)
+mtext(text = "Soil AWC (%)", side = 1, line = 2.2)
+plot.new()
+legend("topright", legend = c("Cheatgrass", "Perr. Grass", "Perr. Forb", "Shrub"),
+lty = c(1,2,3,4), lwd = 2, cex = 1.3, col = c("#1b9e77", "#d95f02", "#7570b3", "#e7298a"))
+plot(NA,
+ylim = c(0,.1),
+xlim = c(min(ag_data$Delta_pdc), max(ag_data$Delta_pdc)),
+xlab = "",
+ylab = "",
+bg='grey60',
+col = 'grey30',
+pch = 21,
+cex.lab = 1.5,
+bty = 'n',
+xaxt = 'n',
+yaxt = 'n')
+lines(exp(preds_pdc_10_cg$predictions) ~ I(preds_pdc_10_cg$predictor), lwd = 2, lty = 1, col = "#1b9e77")
+lines(exp(preds_pdc_10_pg$predictions) ~ I(preds_pdc_10_cg$predictor), lwd = 2, lty = 2, col = "#d95f02")
+lines(exp(preds_pdc_10_pf$predictions) ~ I(preds_pdc_10_cg$predictor), lwd = 2, lty = 3, col = "#7570b3")
+lines(exp(preds_pdc_10_sh$predictions) ~ I(preds_pdc_10_cg$predictor), lwd = 2, lty = 4, col = "#e7298a")
+axis(side = 1)
+axis(side = 2)
+text(x = -30, y = .09, labels = "10% CWD", cex = 1.3)
+plot(NA,
+ylim = c(0,.1),
+xlim = c(min(ag_data$Delta_pdc), max(ag_data$Delta_pdc)),
+xlab = "",
+ylab = "",
+bg='grey60',
+col = 'grey30',
+pch = 21,
+cex.lab = 1.5,
+bty = 'n',
+xaxt = 'n',
+yaxt = 'n')
+lines(exp(preds_pdc_50_cg$predictions) ~ I(preds_pdc_90_cg$predictor), lwd = 2, lty = 1, col = "#1b9e77")
+lines(exp(preds_pdc_50_pg$predictions) ~ I(preds_pdc_90_cg$predictor), lwd = 2, lty = 2, col = "#d95f02")
+lines(exp(preds_pdc_50_pf$predictions) ~ I(preds_pdc_90_cg$predictor), lwd = 2, lty = 3, col = "#7570b3")
+lines(exp(preds_pdc_50_sh$predictions) ~ I(preds_pdc_90_cg$predictor), lwd = 2, lty = 4, col = "#e7298a")
+axis(side = 1)
+axis(side = 2)
+text(x = -30, y = .09, labels = "50% CWD", cex = 1.3)
+mtext(text = "Change in Live Crown (%)", side = 1, line = 2.2)
+plot(NA,
+ylim = c(0,.1),
+xlim = c(min(ag_data$Delta_pdc), max(ag_data$Delta_pdc)),
+xlab = "",
+ylab = "",
+bg='grey60',
+col = 'grey30',
+pch = 21,
+cex.lab = 1.5,
+bty = 'n',
+xaxt = 'n',
+yaxt = 'n')
+lines(exp(preds_pdc_90_cg$predictions) ~ I(preds_pdc_90_cg$predictor), lwd = 2, lty = 1, col = "#1b9e77")
+lines(exp(preds_pdc_90_pg$predictions) ~ I(preds_pdc_90_cg$predictor), lwd = 2, lty = 2, col = "#d95f02")
+lines(exp(preds_pdc_90_pf$predictions) ~ I(preds_pdc_90_cg$predictor), lwd = 2, lty = 3, col = "#7570b3")
+lines(exp(preds_pdc_90_sh$predictions) ~ I(preds_pdc_90_cg$predictor), lwd = 2, lty = 4, col = "#e7298a")
+axis(side = 1)
+axis(side = 2)
+text(x = -30, y = .09, labels = "90% CWD", cex = 1.3)
+mtext(text = "(a)", side = 1)
+text(labels = "(a)", side = 1)
+text(labels = "(a)", x = 15, side = 1)
+text(labels = "(a)", x = 15)
+mtext(text = "(a)", side = 1, line = 3)
+mtext(text = "(a)", side = 1, line = -3)
+mtext(text = "(a)", side = 1, line = -10)
+mtext(text = "(a)", side = 1, line = -10, line = 1)
+mtext(text = "(a)", side = 1, line = -10, line = -1)
+?mtext
+mtext(text = "(a)", side = 1, line = -10, adj = 0)
+mtext(text = "(a)", side = 1, line = -10, adj = 0.1)
+mtext(text = "(a)", side = 1, line = -10, adj = 0.05)
+png(filename="understory_effects.png",
+type="cairo",
+units="in",
+width = 7,
+height=5,
+pointsize=15,
+res=160)
+layout(matrix(c(1,2,3,4,5,6), nrow = 2, ncol = 3, byrow = TRUE))
+par(oma = c(2,4,0,0), mar = c(3,1,1,1), family = "serif", bty = 'n')
+plot(NA,
+ylim = c(0,.1),
+xlim = c(I(min(ag_data$Tree_cover)*100), I(max(ag_data$Tree_cover)*100)),
+xlab = "",
+ylab = "",
+bg='grey60',
+col = 'grey30',
+pch = 21,
+cex.lab = 1.5,
+bty = 'n',
+xaxt = 'n',
+yaxt = 'n')
+lines(exp(preds_tc_cg$predictions) ~ I(preds_tc_cg$predictor*100), lwd = 2, lty = 1, col = "#1b9e77")
+lines(exp(preds_tc_pg$predictions) ~ I(preds_tc_cg$predictor*100), lwd = 2, lty = 2, col = "#d95f02")
+lines(exp(preds_tc_pf$predictions) ~ I(preds_tc_cg$predictor*100), lwd = 2, lty = 3, col = "#7570b3")
+lines(exp(preds_tc_sh$predictions) ~ I(preds_tc_cg$predictor*100), lwd = 2, lty = 4, col = "#e7298a")
+axis(side = 1)
+axis(side = 2)
+mtext(text = "Tree Cover (%)", side = 1, line = 2.2)
+mtext(text = "Predicted Cover", side = 2, outer = TRUE, line = 2, cex = 1)
+mtext(text = "(a)", side = 1, line = -10, adj = 0.05)
+plot(NA,
+ylim = c(0,.1),
+xlim = c(min(ag_data$AWC), max(ag_data$AWC)),
+xlab = "",
+ylab = "",
+bg='grey60',
+col = 'grey30',
+pch = 21,
+cex.lab = 1.5,
+bty = 'n',
+xaxt = 'n',
+yaxt = 'n')
+lines(exp(preds_awc_cg$predictions) ~ I(preds_awc_cg$predictor), lwd = 2, lty = 1, col = "#1b9e77")
+lines(exp(preds_awc_pg$predictions) ~ I(preds_awc_cg$predictor), lwd = 2, lty = 2, col = "#d95f02")
+lines(exp(preds_awc_pf$predictions) ~ I(preds_awc_cg$predictor), lwd = 2, lty = 3, col = "#7570b3")
+lines(exp(preds_awc_sh$predictions) ~ I(preds_awc_cg$predictor), lwd = 2, lty = 4, col = "#e7298a")
+axis(side = 1)
+axis(side = 2)
+mtext(text = "Soil AWC (%)", side = 1, line = 2.2)
+mtext(text = "(b)", side = 1, line = -10, adj = 0.05)
+plot.new()
+legend("topright", legend = c("Cheatgrass", "Perr. Grass", "Perr. Forb", "Shrub"),
+lty = c(1,2,3,4), lwd = 2, cex = 1.3, col = c("#1b9e77", "#d95f02", "#7570b3", "#e7298a"))
+plot(NA,
+ylim = c(0,.1),
+xlim = c(min(ag_data$Delta_pdc), max(ag_data$Delta_pdc)),
+xlab = "",
+ylab = "",
+bg='grey60',
+col = 'grey30',
+pch = 21,
+cex.lab = 1.5,
+bty = 'n',
+xaxt = 'n',
+yaxt = 'n')
+lines(exp(preds_pdc_10_cg$predictions) ~ I(preds_pdc_10_cg$predictor), lwd = 2, lty = 1, col = "#1b9e77")
+lines(exp(preds_pdc_10_pg$predictions) ~ I(preds_pdc_10_cg$predictor), lwd = 2, lty = 2, col = "#d95f02")
+lines(exp(preds_pdc_10_pf$predictions) ~ I(preds_pdc_10_cg$predictor), lwd = 2, lty = 3, col = "#7570b3")
+lines(exp(preds_pdc_10_sh$predictions) ~ I(preds_pdc_10_cg$predictor), lwd = 2, lty = 4, col = "#e7298a")
+axis(side = 1)
+axis(side = 2)
+text(x = -30, y = .09, labels = "10% CWD", cex = 1.3)
+mtext(text = "(c)", side = 1, line = -10, adj = 0.05)
+plot(NA,
+ylim = c(0,.1),
+xlim = c(min(ag_data$Delta_pdc), max(ag_data$Delta_pdc)),
+xlab = "",
+ylab = "",
+bg='grey60',
+col = 'grey30',
+pch = 21,
+cex.lab = 1.5,
+bty = 'n',
+xaxt = 'n',
+yaxt = 'n')
+lines(exp(preds_pdc_50_cg$predictions) ~ I(preds_pdc_90_cg$predictor), lwd = 2, lty = 1, col = "#1b9e77")
+lines(exp(preds_pdc_50_pg$predictions) ~ I(preds_pdc_90_cg$predictor), lwd = 2, lty = 2, col = "#d95f02")
+lines(exp(preds_pdc_50_pf$predictions) ~ I(preds_pdc_90_cg$predictor), lwd = 2, lty = 3, col = "#7570b3")
+lines(exp(preds_pdc_50_sh$predictions) ~ I(preds_pdc_90_cg$predictor), lwd = 2, lty = 4, col = "#e7298a")
+axis(side = 1)
+axis(side = 2)
+text(x = -30, y = .09, labels = "50% CWD", cex = 1.3)
+mtext(text = "Change in Live Crown (%)", side = 1, line = 2.2)
+mtext(text = "(d)", side = 1, line = -10, adj = 0.05)
+plot(NA,
+ylim = c(0,.1),
+xlim = c(min(ag_data$Delta_pdc), max(ag_data$Delta_pdc)),
+xlab = "",
+ylab = "",
+bg='grey60',
+col = 'grey30',
+pch = 21,
+cex.lab = 1.5,
+bty = 'n',
+xaxt = 'n',
+yaxt = 'n')
+lines(exp(preds_pdc_90_cg$predictions) ~ I(preds_pdc_90_cg$predictor), lwd = 2, lty = 1, col = "#1b9e77")
+lines(exp(preds_pdc_90_pg$predictions) ~ I(preds_pdc_90_cg$predictor), lwd = 2, lty = 2, col = "#d95f02")
+lines(exp(preds_pdc_90_pf$predictions) ~ I(preds_pdc_90_cg$predictor), lwd = 2, lty = 3, col = "#7570b3")
+lines(exp(preds_pdc_90_sh$predictions) ~ I(preds_pdc_90_cg$predictor), lwd = 2, lty = 4, col = "#e7298a")
+axis(side = 1)
+axis(side = 2)
+text(x = -30, y = .09, labels = "90% CWD", cex = 1.3)
+mtext(text = "(e)", side = 1, line = -10, adj = 0.05)
+dev.off()
+png(filename="understory_effects.png",
+type="cairo",
+units="in",
+width = 7,
+height=5,
+pointsize=15,
+res=160)
+layout(matrix(c(1,2,3,4,5,6), nrow = 2, ncol = 3, byrow = TRUE))
+par(oma = c(2,4,0,0), mar = c(3,1,1,1), family = "serif", bty = 'n')
+plot(NA,
+ylim = c(0,.1),
+xlim = c(I(min(ag_data$Tree_cover)*100), I(max(ag_data$Tree_cover)*100)),
+xlab = "",
+ylab = "",
+bg='grey60',
+col = 'grey30',
+pch = 21,
+cex.lab = 1.5,
+bty = 'n',
+xaxt = 'n',
+yaxt = 'n')
+lines(exp(preds_tc_cg$predictions) ~ I(preds_tc_cg$predictor*100), lwd = 2, lty = 1, col = "#1b9e77")
+lines(exp(preds_tc_pg$predictions) ~ I(preds_tc_cg$predictor*100), lwd = 2, lty = 2, col = "#d95f02")
+lines(exp(preds_tc_pf$predictions) ~ I(preds_tc_cg$predictor*100), lwd = 2, lty = 3, col = "#7570b3")
+lines(exp(preds_tc_sh$predictions) ~ I(preds_tc_cg$predictor*100), lwd = 2, lty = 4, col = "#e7298a")
+axis(side = 1)
+axis(side = 2)
+mtext(text = "Tree Cover (%)", side = 1, line = 2.2)
+mtext(text = "Predicted Cover", side = 2, outer = TRUE, line = 2, cex = 1)
+mtext(text = "(a)", side = 1, line = -10, adj = 0.05)
+plot(NA,
+ylim = c(0,.1),
+xlim = c(min(ag_data$AWC), max(ag_data$AWC)),
+xlab = "",
+ylab = "",
+bg='grey60',
+col = 'grey30',
+pch = 21,
+cex.lab = 1.5,
+bty = 'n',
+xaxt = 'n',
+yaxt = 'n')
+lines(exp(preds_awc_cg$predictions) ~ I(preds_awc_cg$predictor), lwd = 2, lty = 1, col = "#1b9e77")
+lines(exp(preds_awc_pg$predictions) ~ I(preds_awc_cg$predictor), lwd = 2, lty = 2, col = "#d95f02")
+lines(exp(preds_awc_pf$predictions) ~ I(preds_awc_cg$predictor), lwd = 2, lty = 3, col = "#7570b3")
+lines(exp(preds_awc_sh$predictions) ~ I(preds_awc_cg$predictor), lwd = 2, lty = 4, col = "#e7298a")
+axis(side = 1)
+axis(side = 2)
+mtext(text = "Soil AWC (%)", side = 1, line = 2.2)
+mtext(text = "(b)", side = 1, line = -10, adj = 0.05)
+plot.new()
+legend("topright", legend = c("Cheatgrass", "Perr. Grass", "Perr. Forb", "Shrub"),
+lty = c(1,2,3,4), lwd = 2, cex = 1.3, col = c("#1b9e77", "#d95f02", "#7570b3", "#e7298a"))
+plot(NA,
+ylim = c(0,.1),
+xlim = c(min(ag_data$Delta_pdc), max(ag_data$Delta_pdc)),
+xlab = "",
+ylab = "",
+bg='grey60',
+col = 'grey30',
+pch = 21,
+cex.lab = 1.5,
+bty = 'n',
+xaxt = 'n',
+yaxt = 'n')
+lines(exp(preds_pdc_10_cg$predictions) ~ I(preds_pdc_10_cg$predictor), lwd = 2, lty = 1, col = "#1b9e77")
+lines(exp(preds_pdc_10_pg$predictions) ~ I(preds_pdc_10_cg$predictor), lwd = 2, lty = 2, col = "#d95f02")
+lines(exp(preds_pdc_10_pf$predictions) ~ I(preds_pdc_10_cg$predictor), lwd = 2, lty = 3, col = "#7570b3")
+lines(exp(preds_pdc_10_sh$predictions) ~ I(preds_pdc_10_cg$predictor), lwd = 2, lty = 4, col = "#e7298a")
+axis(side = 1)
+axis(side = 2)
+text(x = -30, y = .09, labels = "10% CWD", cex = 1.3)
+mtext(text = "(c)", side = 1, line = -10, adj = 0.05)
+plot(NA,
+ylim = c(0,.1),
+xlim = c(min(ag_data$Delta_pdc), max(ag_data$Delta_pdc)),
+xlab = "",
+ylab = "",
+bg='grey60',
+col = 'grey30',
+pch = 21,
+cex.lab = 1.5,
+bty = 'n',
+xaxt = 'n',
+yaxt = 'n')
+lines(exp(preds_pdc_50_cg$predictions) ~ I(preds_pdc_90_cg$predictor), lwd = 2, lty = 1, col = "#1b9e77")
+lines(exp(preds_pdc_50_pg$predictions) ~ I(preds_pdc_90_cg$predictor), lwd = 2, lty = 2, col = "#d95f02")
+lines(exp(preds_pdc_50_pf$predictions) ~ I(preds_pdc_90_cg$predictor), lwd = 2, lty = 3, col = "#7570b3")
+lines(exp(preds_pdc_50_sh$predictions) ~ I(preds_pdc_90_cg$predictor), lwd = 2, lty = 4, col = "#e7298a")
+axis(side = 1)
+axis(side = 2)
+text(x = -30, y = .09, labels = "50% CWD", cex = 1.3)
+mtext(text = "Change in Live Canopy (%)", side = 1, line = 2.2)
+mtext(text = "(d)", side = 1, line = -10, adj = 0.05)
+plot(NA,
+ylim = c(0,.1),
+xlim = c(min(ag_data$Delta_pdc), max(ag_data$Delta_pdc)),
+xlab = "",
+ylab = "",
+bg='grey60',
+col = 'grey30',
+pch = 21,
+cex.lab = 1.5,
+bty = 'n',
+xaxt = 'n',
+yaxt = 'n')
+lines(exp(preds_pdc_90_cg$predictions) ~ I(preds_pdc_90_cg$predictor), lwd = 2, lty = 1, col = "#1b9e77")
+lines(exp(preds_pdc_90_pg$predictions) ~ I(preds_pdc_90_cg$predictor), lwd = 2, lty = 2, col = "#d95f02")
+lines(exp(preds_pdc_90_pf$predictions) ~ I(preds_pdc_90_cg$predictor), lwd = 2, lty = 3, col = "#7570b3")
+lines(exp(preds_pdc_90_sh$predictions) ~ I(preds_pdc_90_cg$predictor), lwd = 2, lty = 4, col = "#e7298a")
+axis(side = 1)
+axis(side = 2)
+text(x = -30, y = .09, labels = "90% CWD", cex = 1.3)
+mtext(text = "(e)", side = 1, line = -10, adj = 0.05)
+dev.off()
+cg_change_lm <- lm(log_cg_change ~ Delta_pdc*cwd_normal_cum, data= compare[-c(5,10),])
+cg_change_lm
+summary(cg_change_lm)
+##Understory data formatting
+##
+library("reshape2")
+library("plyr")
+library("effects")
+daub <- read.csv("daub_cover.csv")
+daub$Midpoint.value <- as.numeric(as.character((daub$Midpoint.value)))
+trees <- read.csv("trees_updated_with_logs_041716.csv")
+tree_pdc <- read.csv("all_trees_with_delta_and_ENN_041916.csv")
+greenwood_under <- read.csv("Greenwood_Understory_Variables_SF_edits.csv")
+tcover <- read.csv("tree_and_shrub_cover_020815.csv")
+names(tcover)[3] <- "Shrub_cover_li"
+source("calculate_awc.R")
+soil <- calculate_awc()
+clim <- read.csv("ALL_climate_variables.csv")
+names(clim)[2] <- "Plot"
+other_vars <- read.csv("all_vars_EXPORT.csv")
+#remaking data into plot average cover
+plot_daub_cover <- dcast(daub, Plot ~ Cover.type, value.var = "Midpoint.value", fun.aggregate = mean)
+names(plot_daub_cover) <- c("Plot", "Aforb", "Bg", "Cheatgrass", "Crust", "Gravel", "Litter",
+"Agrass", "Pforb", "Pgrass", "Rock", "Shrub")
+#-------------------------------------------------------------
+#Create tree data plot-level
+for (i in which(sapply(trees, is.numeric))) {
+for (j in which(is.na(trees[, i]))) {
+trees[j, i] <- mean(trees[trees[, "Plot"] == trees[j, "Plot"], i],  na.rm = TRUE)
+}
+}
+plot_trees <- data.frame(Plot = character(101),
+Live_ba = numeric(101),
+Dead_ba = numeric(101),
+Total_ba = numeric(101),
+Dead_rat = numeric(101),
+Delta_pdc = numeric(101))
+plot_trees$Plot <- as.character(unique(plot_daub_cover$Plot))
+for(i in (1:nrow(plot_trees))){
+plot_trees$Live_ba[i] <- sum(trees[trees$Live == "Y" & trees$Plot == as.character(plot_trees$Plot[i]), ]$BA_cm,
+na.rm = TRUE)
+plot_trees$Dead_ba[i] <- sum(trees[trees$Live == "N" & trees$Plot == as.character(plot_trees$Plot[i]), ]$BA_cm,
+na.rm = TRUE)
+plot_trees$Total_ba[i] <- sum(trees[trees$Plot == as.character(plot_trees$Plot[i]), ]$BA_cm, na.rm = TRUE)
+plot_trees$Dead_rat[i] <- plot_trees$Dead_ba[i] / plot_trees$Total_ba[i]
+plot_trees$Delta_pdc[i] <- weighted.mean(tree_pdc[tree_pdc$Plot == as.character(plot_trees$Plot[i]), "Delta_pdc"],
+tree_pdc[tree_pdc$Plot == as.character(plot_trees$Plot[i]), "BA_cm"])
+}
+#-----------------------------------------------
+# Plot-level cover for everything and also predictor variables
+#fill in any NAs
+plot_data <- join(plot_daub_cover, plot_trees, by = c("Plot"))
+plot_data <- join(plot_data, clim[, c("Plot", "cwd_normal_cum")], by = "Plot")
+plot_data <- join(plot_data, soil[, c("Plot", "AWC")], by = "Plot")
+plot_data <- join(plot_data, tcover[, c("Plot", "Tree_cover", "Shrub_cover_li")], by = "Plot")
+plot_data <- join(plot_data, other_vars[, c("Plot", "Cluster", "Avg_depth")], by = "Plot")
+for (i in which(sapply(plot_data, is.numeric))) {
+for (j in which(is.na(plot_data[, i]))) {
+plot_data[j, i] <- mean(plot_data[, i],  na.rm = TRUE)
+}
+}
+spp_cov2 <- read.csv("species_cover2.csv")
+spp_cov2 <- read.csv("spp_cover2.csv")
+table(spp_cov)

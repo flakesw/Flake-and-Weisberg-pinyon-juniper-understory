@@ -1,0 +1,28 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1478112269319.000,
+    "dirty" : false,
+    "encoding" : "",
+    "folds" : "",
+    "hash" : "0",
+    "id" : "20806A0B",
+    "lastKnownWriteTime" : 1468118531,
+    "last_content_update" : 1478112269319,
+    "path" : null,
+    "project_path" : null,
+    "properties" : {
+        "cacheKey" : "3l1395pudt",
+        "caption" : "quadrat_abund",
+        "contentUrl" : "grid_resource/gridviewer.html?env=&obj=quadrat_abund&cache_key=3l1395pudt",
+        "displayedObservations" : 87,
+        "environment" : "",
+        "object" : "quadrat_abund",
+        "totalObservations" : 87,
+        "variables" : 2
+    },
+    "relative_order" : 7,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_dataframe"
+}

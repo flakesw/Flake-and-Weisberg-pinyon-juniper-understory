@@ -1,0 +1,25 @@
+{
+    "contents" : "",
+    "created" : 1462472296608.000,
+    "dirty" : false,
+    "encoding" : "",
+    "folds" : "",
+    "hash" : "0",
+    "id" : "2863338D",
+    "lastKnownWriteTime" : 7011605692497750387,
+    "path" : null,
+    "project_path" : null,
+    "properties" : {
+        "cacheKey" : "5qm4tkwid8",
+        "caption" : "daub_melt",
+        "contentUrl" : "grid_resource/gridviewer.html?env=&obj=daub_melt&cache_key=5qm4tkwid8",
+        "displayedObservations" : "22275",
+        "environment" : "",
+        "object" : "daub_melt",
+        "totalObservations" : "22275",
+        "variables" : "9"
+    },
+    "relative_order" : 3,
+    "source_on_save" : false,
+    "type" : "r_dataframe"
+}

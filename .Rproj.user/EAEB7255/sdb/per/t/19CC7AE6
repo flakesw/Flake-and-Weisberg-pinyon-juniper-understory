@@ -1,0 +1,28 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1464638444652.000,
+    "dirty" : false,
+    "encoding" : "",
+    "folds" : "",
+    "hash" : "0",
+    "id" : "19CC7AE6",
+    "lastKnownWriteTime" : 7308604914264011873,
+    "last_content_update" : 1464638444652,
+    "path" : null,
+    "project_path" : null,
+    "properties" : {
+        "cacheKey" : "nryx91s30x",
+        "caption" : "test_grass_cov",
+        "contentUrl" : "grid_resource/gridviewer.html?env=&obj=test_grass_cov&cache_key=nryx91s30x",
+        "displayedObservations" : 20,
+        "environment" : "",
+        "object" : "test_grass_cov",
+        "totalObservations" : 20,
+        "variables" : 10
+    },
+    "relative_order" : 6,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_dataframe"
+}
