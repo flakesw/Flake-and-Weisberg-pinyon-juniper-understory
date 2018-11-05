@@ -4,7 +4,12 @@ library(vioplot)
 library(reshape2)
 
 daub <- read.csv("./raw data/daub_cover.csv")
-daub <- daub[(daub$Transect %in% c("N", "E", "S", "W")), ]
+  daub <- daub[(daub$Transect %in% c("N", "E", "S", "W")), ]
+  daub$Plot <- as.character(daub$Plot)
+  daub[daub$Plot == "NPElectricEel", "Plot"] <- "NPELECTRICEEL"
+  daub[daub$Plot == "NPElectricEel120", "Plot"] <- "NPELECTRICEEL120"
+  daub[daub$Plot == "NPElectricEel240", "Plot"] <- "NPELECTRICEEL240"
+  daub[daub$Plot == "NPElectricEel360", "Plot"] <- "NPELECTRICEEL360"
 daub$Midpoint.value <- as.numeric(as.character((daub$Midpoint.value)))
 daub$unique_quad <- paste0(daub$Plot, daub$Transect, daub$Meter)
 
@@ -43,18 +48,18 @@ spp_abund <- cbind(spp_abund, quadrat_abund[-1, 2], plot_presence[-1, 1])
 
 write.csv(spp_abund, "./outputs/species_summary.csv")
 
-plot_abund <- matrix(NA, nrow = length(unique(species$Species)), ncol = length(unique(species$Plot)),
-                     dimnames = list(Species = unique(species$Species), Plot = unique(species$Plot)))
-                    
+
+## generate cover data for different subsets
+n_quads_occ <- length(unique(species$unique_quad)) #number of quadrat-by-group records
 
 spp_cov <- data.frame(unique_quad = unique(species$unique_quad),
-                     poasec = numeric(2002),
-                     othergrass = numeric(2002),
-                     phlhoo = numeric(2002),
-                     otherforb = numeric(2002))
+                     poasec = numeric(n_quads_occ),
+                     othergrass = numeric(n_quads_occ),
+                     phlhoo = numeric(n_quads_occ),
+                     otherforb = numeric(n_quads_occ))
 
 
-for(i in 1:2007){
+for(i in 1:n_quads_occ){
   spp_cov$poasec[i] <- ifelse(species[species$unique_quad == spp_cov$unique_quad[i], ]$Species == "POASEC",
     species[species$unique_quad == spp_cov$unique_quad[i] & species$Species == "POASEC", ]$Cover, 0)
   
@@ -72,19 +77,45 @@ for(i in 1:2007){
                      
 #----------------------------------------------------------------------------
 
-ms <- read.csv("microsite.csv")
+# import and recode microsite data
+ms <- read.csv("./raw data/microsite.csv")
 ms$ms <- ifelse(ms$Microsite %in% c("PI",  "JI",  "CI"), "Live Inner",
                 ifelse(ms$Microsite %in% c("PO", "JO", "CO"), "Live Outer", 
                 ifelse(ms$Microsite %in% c("PI(S)", "PO(S)", "JI(S)", "JO(S)", "CI(S)", "CO(S)"), "Dead",
                        ifelse(ms$Microsite =="LOG", "Log",
                        ifelse(ms$Microsite == "I", "Inter", NA)))))
-unique(ms$Microsite)
-ms$ms
+ms[ms$Transect == "e", "Transect"] <- "E"
+ms[ms$Transect == "s", "Transect"] <- "S"
+ms[ms$Transect == "w", "Transect"] <- "W"
+ms[ms$Transect == "n", "Transect"] <- "N"
+
+ms$Plot <- as.character(ms$Plot)
+
+ms <- ms[(ms$Transect %in% c("N", "S", "E", "W")), ]
+
+ms[ms$Plot == "NPElectricEel120", "Plot"] <- "NPELECTRICEEL120"
+
+
 ms$unique_quad <- paste0(ms$Plot, ms$Transect, ms$Meter)
 
+unique(ms$Plot)[!(unique(ms$Plot) %in% unique(daub$Plot))] 
+unique(daub$Plot)[!(unique(daub$Plot) %in% unique(ms$Plot))] #WHIS64240
+
+#how many quadrats are messed up?
+table(ms[!(ms$unique_quad %in% unique(daub$unique_quad)), "Plot"])[table(ms[!(ms$unique_quad %in% unique(daub$unique_quad)), "Plot"]) > 0] 
+    #SPR1575 (7 quads), TOI1577360
+table(daub[!(daub$unique_quad %in% unique(ms$unique_quad)), "Plot"])/11 #same as above, plus WHIS64240
+
+#which quadrats are messed up?
+unique(ms[!(ms$unique_quad %in% unique(daub$unique_quad)), "unique_quad"]) 
+unique(daub[!(daub$unique_quad %in% unique(ms$unique_quad)), "unique_quad"]) 
+
+#get total cover for each plot
 total_cover <- aggregate(daub$Midpoint.value, by = list(daub$Plot, daub$Cover.type), FUN = sum)
 
 
+
+## select which plots have enough microsites of each type
 plots_to_use_dead <- NA
 plots_to_use_live <- NA
 for(i in 1:length(unique(ms$Plot))){
