@@ -79,11 +79,11 @@ for(i in 1:n_quads_occ){
 
 # import and recode microsite data
 ms <- read.csv("./raw data/microsite.csv")
-ms$ms <- ifelse(ms$Microsite %in% c("PI",  "JI",  "CI"), "Live Inner",
-                ifelse(ms$Microsite %in% c("PO", "JO", "CO"), "Live Outer", 
+ms$ms <- ifelse(ms$Microsite %in% c("PI",  "JI",  "CI", "PO", "JO", "CO"), "Live",
+                # ifelse(ms$Microsite %in% c("PO", "JO", "CO"), "Live Outer", 
                 ifelse(ms$Microsite %in% c("PI(S)", "PO(S)", "JI(S)", "JO(S)", "CI(S)", "CO(S)"), "Dead",
                        ifelse(ms$Microsite =="LOG", "Log",
-                       ifelse(ms$Microsite == "I", "Inter", NA)))))
+                       ifelse(ms$Microsite == "I", "Inter", NA))))#)
 ms[ms$Transect == "e", "Transect"] <- "E"
 ms[ms$Transect == "s", "Transect"] <- "S"
 ms[ms$Transect == "w", "Transect"] <- "W"
@@ -97,18 +97,6 @@ ms[ms$Plot == "NPElectricEel120", "Plot"] <- "NPELECTRICEEL120"
 
 
 ms$unique_quad <- paste0(ms$Plot, ms$Transect, ms$Meter)
-
-unique(ms$Plot)[!(unique(ms$Plot) %in% unique(daub$Plot))] 
-unique(daub$Plot)[!(unique(daub$Plot) %in% unique(ms$Plot))] #WHIS64240
-
-#how many quadrats are messed up?
-table(ms[!(ms$unique_quad %in% unique(daub$unique_quad)), "Plot"])[table(ms[!(ms$unique_quad %in% unique(daub$unique_quad)), "Plot"]) > 0] 
-    #SPR1575 (7 quads), TOI1577360
-table(daub[!(daub$unique_quad %in% unique(ms$unique_quad)), "Plot"])/11 #same as above, plus WHIS64240
-
-#which quadrats are messed up?
-unique(ms[!(ms$unique_quad %in% unique(daub$unique_quad)), "unique_quad"]) 
-unique(daub[!(daub$unique_quad %in% unique(ms$unique_quad)), "unique_quad"]) 
 
 #get total cover for each plot
 total_cover <- aggregate(daub$Midpoint.value, by = list(daub$Plot, daub$Cover.type), FUN = sum)
@@ -126,13 +114,14 @@ for(i in 1:length(unique(ms$Plot))){
 
 plots_to_use <- unique(ms$Plot)[plots_to_use_dead & plots_to_use_live]
 
+#-----------------------------------------------------------------------------------------------
 
 grass_elect_results <- data.frame(Plot = character(0),
                                   Dead = numeric(0),
                                   Live = numeric(0),
                                   Inter = numeric(0))
 
-i<-23
+
 for (i in 1:length(plots_to_use)){
   
 test_grass_cov <- daub[daub$Cover.type == "Perennial grass" & daub$Plot == as.character(plots_to_use[i]), ]
@@ -156,6 +145,13 @@ grass_elect_results <- rbind(grass_elect_results, elect)
 
 vioplot(grass_elect_results$Inter, grass_elect_results$Live, grass_elect_results$Dead)
 
+grass_melt <- melt(grass_elect_results)
+
+grass_anova <- lm(value ~ variable, data = grass_melt)
+anova(grass_anova)
+summary(grass_anova)
+
+TukeyHSD(aov(grass_anova))
 
 
 #------------------------------------------------------------------------------------------------------------
@@ -164,7 +160,7 @@ forb_elect_results <- data.frame(Plot = character(0),
                                   Dead = numeric(0),
                                   Live = numeric(0),
                                   Inter = numeric(0))
-i<-1
+
 for (i in 1:length(plots_to_use)){
   
   test_grass_cov <- daub[daub$Cover.type == "Perennial forb " & daub$Plot == as.character(plots_to_use[i]), ]
@@ -189,16 +185,21 @@ for (i in 1:length(plots_to_use)){
 
 vioplot(forb_elect_results$Inter, forb_elect_results$Live, forb_elect_results$Dead)
 
+forb_melt <- melt(forb_elect_results)
 
+forb_anova <- lm(value ~ variable, data = forb_melt)
+anova(forb_anova)
+summary(forb_anova)
+
+TukeyHSD(aov(forb_anova))
 
 #----------------------------------------------------------------------------------------------------------
 
 shrub_elect_results <- data.frame(Plot = character(0),
                                  Dead = numeric(0),
                                  Live = numeric(0),
-                                 Inter = numeric(0),
-                                 Log = numeric(0))
-i<-11
+                                 Inter = numeric(0))
+
 for (i in 1:length(plots_to_use)){
   
   test_grass_cov <- daub[daub$Cover.type == "Shrub " & daub$Plot == as.character(plots_to_use[i]), ]
@@ -217,17 +218,22 @@ for (i in 1:length(plots_to_use)){
                         (cov[cov$Group.1 == "Live",2] + prev[which(names(prev) == "Live")]),
                       
                       Inter = (cov[cov$Group.1 == "Inter",2] - prev[which(names(prev) == "Inter")]) / 
-                        (cov[cov$Group.1 == "Inter",2] + prev[which(names(prev) == "Inter")]),
-                      Log = (cov[cov$Group.1 == "Inter",2] - prev[which(names(prev) == "Inter")]) / 
                         (cov[cov$Group.1 == "Inter",2] + prev[which(names(prev) == "Inter")]))
   
   shrub_elect_results <- rbind(shrub_elect_results, elect)
 }
 
+shrub_elect_results <- shrub_elect_results[complete.cases(shrub_elect_results), ]
 
 vioplot(shrub_elect_results$Inter, shrub_elect_results$Live, shrub_elect_results$Dead)
 
-#-----------------------------------------------------------------------------------------------------
+shrub_melt <- melt(shrub_elect_results)
+
+shrub_anova <- lm(value ~ variable, data = shrub_melt)
+anova(shrub_anova)
+summary(shrub_anova)
+
+TukeyHSD(aov(forb_anova))
 
 #----------------------------------------------------------------------------------------------------------
 
@@ -235,7 +241,8 @@ cheat_elect_results <- data.frame(Plot = character(0),
                                   Dead = numeric(0),
                                   Live = numeric(0),
                                   Inter = numeric(0))
-i<-11
+
+i <- 1
 for (i in 1:length(plots_to_use)){
   
   test_grass_cov <- daub[daub$Cover.type == "Cheatgrass" & daub$Plot == as.character(plots_to_use[i]), ]
@@ -259,8 +266,19 @@ for (i in 1:length(plots_to_use)){
   cheat_elect_results <- rbind(cheat_elect_results, elect)
 }
 
+cheat_elect_results <- cheat_elect_results[complete.cases(cheat_elect_results), ]
 
 vioplot(cheat_elect_results$Inter, cheat_elect_results$Live, cheat_elect_results$Dead)
+
+cheat_melt <- melt(cheat_elect_results)
+
+cheat_anova <- lm(value ~ variable, data = cheat_melt)
+anova(cheat_anova)
+summary(cheat_anova)
+
+TukeyHSD(aov(cheat_anova))
+
+
 
 #-----------------------------------------------------------------------------------------------
 # For whole study area
