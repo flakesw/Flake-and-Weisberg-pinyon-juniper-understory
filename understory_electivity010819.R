@@ -137,115 +137,91 @@ plots_to_use_live <- (plots_to_use_live >= n_plots)
 
 plots_to_use <- unique(ms$Plot)[plots_to_use_dead & plots_to_use_live]
 
+for(type in types){
+  
+  plot_to_use_type <- subset(elect_results[[type]], !is.na(Dead))$Plot
+  
+  total_cover_type <- total_cover[total_cover$Group.2 == type, ]
+  plots_enough_cover <- total_cover_type[total_cover_type$x>20, "Group.1"]
+  
+  plot_to_use_type <- subset(plot_to_use_type, plot_to_use_type %in% plots_enough_cover)
+}
 
 #------------------------------------------------------------------------------
 # Calculate test and randomized distributions
 #------------------------------------------------------------------------------
 #perform analysis for the four FTs
-types <- c("All", "Perennial grass", "Cheatgrass", "Perennial forb", "Shrub")
+types <- c("Perennial grass", "Cheatgrass", "Perennial forb", "Shrub")
 
 #initialize a list of dataframes to catch the electivities at each plot/FT
 elect_results <- list()
-for(i in 1:5){
+for(i in 1:4){
   elect_results[[i]] <- data.frame(Plot = numeric(0),
-                                   Dead = numeric(0),
-                                   Live = numeric(0),
-                                   Inter = numeric(0),
-                                   DL = numeric(0),
-                                   DI = numeric(0),
-                                   LI = numeric(0))
+                                 Dead = numeric(0),
+                                 Live = numeric(0),
+                                 Inter = numeric(0))
 }
 names(elect_results) <- types
 
 
 for(type in types){
-  
   for (i in 1:length(plots_to_use)){
     
-    if(type == "All"){
-      daub_cov <- daub[daub$Plot == as.character(plots_to_use[i]), ]
-      daub_cov <- daub_cov[daub_cov$Cover.type %in% c("Cheatgrass", "Other Ann Grass", 
-                        "Perennial grass", "Annual forb", "Perennial forb", "Shrub"), ]
-      daub_cov_2 <- aggregate(daub_cov$Midpoint.value, by = list(daub_cov$unique_quad), FUN = sum)
-      names(daub_cov_2) <- c("unique_quad", "Midpoint.value")
-      daub_cov <- join(daub_cov_2, ms[, c("unique_quad", "ms")], by = "unique_quad", type = "inner")
-    }else{
-      daub_cov <- daub[daub$Cover.type == type & daub$Plot == as.character(plots_to_use[i]), ]
-      daub_cov <- join(daub_cov, ms[, c("unique_quad", "ms")], by = "unique_quad", type = "inner")
-     
-    }
+    daub_cov <- daub[daub$Cover.type == type & daub$Plot == as.character(plots_to_use[i]), ]
+    daub_cov <- join(daub_cov, ms[, c("unique_quad", "ms")], by = "unique_quad", type = "inner")
     
     daub_cov$prop_cov <- daub_cov$Midpoint.value / sum(daub_cov$Midpoint.value)
     
     cov <- aggregate(daub_cov[, "prop_cov"], by = list(daub_cov$ms), FUN = sum)
-    
     prev <- table(daub_cov$ms)/20
     
-    #this is a mess because tables are hard to use. There's definitely a better way to do this
-    elect <- data.frame(Plot = plots_to_use[i],
+    elect <- data.frame(Plot = daub_cov$Plot[1],
                         Dead = (cov[cov$Group.1 == "Dead",2] - prev[which(names(prev) == "Dead")]) / 
                           (cov[cov$Group.1 == "Dead", 2] + prev[which(names(prev) == "Dead")]),
                         Live = (cov[cov$Group.1 == "Live",2] - prev[which(names(prev) == "Live")]) / 
                           (cov[cov$Group.1 == "Live",2] + prev[which(names(prev) == "Live")]),
                         Inter = (cov[cov$Group.1 == "Inter",2] - prev[which(names(prev) == "Inter")]) / 
                           (cov[cov$Group.1 == "Inter",2] + prev[which(names(prev) == "Inter")]))
-    elect$DL = elect$Dead - elect$Live
-    elect$DI = elect$Dead - elect$Inter
-    elect$LI = elect$Live - elect$Inter
     
     elect_results[[type]] <- rbind(elect_results[[type]], elect)
   }
 }
 
 saveRDS(elect_results, paste0("./outputs/results_elect_", n_plots, "dead.rds"))
-# elect_results <- readRDS("./outputs/results_elect_1dead.rds")
+
+elect_results <- readRDS("./outputs/results_elect_1dead.rds")
 #------------------------------------------------------------------------------
-#Calculate monte carlo means
+#Calculate randomized mean
 #------------------------------------------------------------------------------
-nit <- 999 #number of monte carlo draws
+nit <- 999 #number of boostraps
 
 #initialize a list of dataframes to catch the electivities at each plot/FT
 elect_means <- list()
-for(i in 1:5){
+for(i in 1:4){
   elect_means[[i]] <- data.frame(Iter = numeric(0),
                                  Dead = numeric(0),
                                  Live = numeric(0),
-                                 Inter = numeric(0),
-                                 DL = numeric(0),
-                                 DI = numeric(0),
-                                 LI = numeric(0))
+                                 Inter = numeric(0))
 }
 names(elect_means) <- types
 
 system.time(#takes about a half hour
 
 for(type in types){
-  
-  plot_to_use_type <- subset(elect_results[[type]], !is.na(Dead))$Plot
+
+  plot_to_use_type <- plot_to_use_type[[type]]
   
   for(j in 1:nit){
     
     elect_rand <- data.frame(Plot = character(0),
                              Dead = numeric(0),
                              Live = numeric(0),
-                             Inter = numeric(0),
-                             DL = numeric(0),
-                             DI = numeric(0),
-                             DL = numeric(0))
+                             Inter = numeric(0))
   
     for (plot_use in plot_to_use_type){
-      if(type == "All"){
-        daub_cov <- daub[daub$Plot == as.character(plot_use), ]
-        daub_cov <- daub_cov[daub_cov$Cover.type %in% c("Cheatgrass", "Other Ann Grass", 
-                                                        "Perennial grass", "Annual forb", "Perennial forb", "Shrub"), ]
-        daub_cov_2 <- aggregate(daub_cov$Midpoint.value, by = list(daub_cov$unique_quad), FUN = sum)
-        names(daub_cov_2) <- c("unique_quad", "Midpoint.value")
-        daub_cov <- join(daub_cov_2, ms[, c("unique_quad", "ms")], by = "unique_quad", type = "inner")
-      }else{
-        daub_cov <- daub[daub$Cover.type == type & daub$Plot == as.character(plot_use), ]
-        daub_cov <- join(daub_cov, ms[, c("unique_quad", "ms")], by = "unique_quad", type = "inner")
-        
-      }
+      
+      daub_cov <- daub[daub$Cover.type == type & daub$Plot == as.character(plot_use), ]
+      daub_cov <- join(daub_cov, ms[, c("unique_quad", "ms")], by = "unique_quad", type = "inner")
       
       daub_cov$prop_cov <- daub_cov$Midpoint.value / sum(daub_cov$Midpoint.value)
       daub_cov$prop_cov_ran <- sample(daub_cov$prop_cov, size = 20, replace = FALSE)
@@ -260,16 +236,13 @@ for(type in types){
                             (cov[cov$Group.1 == "Live",2] + prev[which(names(prev) == "Live")]),
                           Inter = (cov[cov$Group.1 == "Inter",2] - prev[which(names(prev) == "Inter")]) / 
                             (cov[cov$Group.1 == "Inter",2] + prev[which(names(prev) == "Inter")]))
-      elect$DL = elect$Dead - elect$Live
-      elect$DI = elect$Dead - elect$Inter
-      elect$LI = elect$Live - elect$Inter
       
       elect_rand <- rbind(elect_rand, elect)
     }
     
-    means <- apply(elect_rand[, c(2:7)], 2, FUN = function(x){mean(x, na.rm = TRUE)})
+    means <- apply(elect_rand[, c(2:4)], 2, FUN = function(x){mean(x, na.rm = TRUE)})
     elect_means[[type]][j, 1] <- j
-    elect_means[[type]][j, 2:7] <- means
+    elect_means[[type]][j, 2:4] <- means
     
   
   }
@@ -279,30 +252,23 @@ for(type in types){
 
 
 results_boots <- list()
-for(i in 1:5){
+for(i in 1:4){
   results_boots[[i]] <- data.frame(Dead = numeric(2),
                                  Live = numeric(2),
-                                 Inter = numeric(2),
-                                 DL = numeric(2),
-                                 DI = numeric(2),
-                                 LI = numeric(2))
+                                 Inter = numeric(2))
   rownames(results_boots[[i]]) <- c("Empirical", "N_boots_greater")
 }
 names(results_boots) <- types
 
 #calculate p-values from distribution of bootstrapped mean electivities
-for(i in 1:5){
-emp_mean <- apply(elect_results[[i]][, 2:7], 2, FUN = function(x){mean(x, na.rm = TRUE)})
+for(i in 1:4){
+emp_mean <- apply(elect_results[[i]][, 2:4], 2, FUN = function(x){mean(x, na.rm = TRUE)})
 
 pvals <- c(sum(elect_means[[i]][2] > emp_mean[1]), 
            sum(elect_means[[i]][3] > emp_mean[2]), 
-           sum(elect_means[[i]][4] > emp_mean[3]),
-           sum(elect_means[[i]][5] > emp_mean[4]), 
-           sum(elect_means[[i]][6] > emp_mean[5]), 
-           sum(elect_means[[i]][7] > emp_mean[6]))
+           sum(elect_means[[i]][4] > emp_mean[3]))
 
-#flip around large p-values to make them small p-values for the left tail
-pvals <- ifelse(pvals > (nit + 1)/2, (nit + 1 - pvals)/(nit + 1), pvals/(nit + 1))
+pvals <- ifelse(pvals > 500, (1000-pvals)/1000, pvals/1000)
 
 results_boots[[i]][1, ] <- emp_mean
 results_boots[[i]][2, ] <- pvals
@@ -310,64 +276,34 @@ results_boots[[i]][2, ] <- pvals
 
 saveRDS(results_boots, paste0("./outputs/results_boots_", n_plots, "dead.rds"))
 
-# results_boots <- readRDS("./outputs/results_boots_1dead.rds")
+
+results_boots <- readRDS("./outputs/results_boots_1dead.rds")
 #-----------------------------------------------------------------------------------------------
 # Plot of electivity for each FT
 #-----------------------------------------------------------------------------------------------
 
-png(filename="electivity.png", 
-    type="cairo",
-    units="in", 
-    width = 4, 
-    height=6, 
-    pointsize=12, 
-    res=160)
 
-par(mfrow = c(3,2),
-    mar = c(2,1,1,2),
-    oma = c(2,3,1,0))
+par(mfrow = c(2,2),
+    mar = c(2,1,2,2),
+    oma = c(2,3,0,0))
 
-for(i in 1:5){
-
+for(i in 1:4){
+# boxplot(elect_results[[i]][, 2:4], 
+#         ylim = c(-1, 1))
   melt_elect <- melt(elect_results[[i]][, 2:4])
-  plot(melt_elect$value ~ I(as.numeric(melt_elect$variable)+ runif(nrow(melt_elect), -.1, .1 )),
-       ylim = c(-1,1),
-       xlim = c(.7, 3.3),
+  plot(melt_elect$value ~ I(as.numeric(melt_elect$variable) + runif(nrow(melt_elect), -.1, .1 )),
        pch = 21,
-       bg = "grey",
-       xaxt = "n")
+       bg = "grey")
   pvals <- results_boots[[i]][2, ]
   abline(h = 0)
-  
-  means <- aggregate(melt_elect$value, by = list(melt_elect$variable), FUN = function(x){mean(x, na.rm = TRUE)})
-  
-  segments(x0 = c(0.9, 1.9, 2.9), y0 = means$x, x1 = c(1.1, 2.1, 3.1), lwd = 3)
-  
-  
-  # segments(x0 = 1, x1 = 2, y0 = melt_elect[melt_elect$variable == "Dead", "value"],
-  #          y1 = melt_elect[melt_elect$variable == "Live", "value"])
-  # 
-  # segments(x0 = 2, x1 = 3, y0 = melt_elect[melt_elect$variable == "Live", "value"],
-  #          y1 = melt_elect[melt_elect$variable == "Inter", "value"])
-  
-  if(i %in% c(1,2)){
-    axis(1, at = c(1,2,3), labels = FALSE)
-  }
-  
-  if(i %in% c(3,4)){
-  axis(1, at = c(1,2,3), labels =  c("Dead", "Live", "Interspace"))
-  }
-  
-  text(x = c(1,2,3), y = 0.9, labels = pvals[2:4])
+  text(x = c(1,2,3), y = 0.9, labels = pvals)
   mtext(text = types[i], outer = FALSE, side = 3, line = 0)
   mtext(text = paste0("(", letters[i], ")"), outer = FALSE, side = 3, at = 0.5, line = 0)
   mtext(text = "Electivity", outer = TRUE, side = 2, line = 1.5)
-  
-  
 }
 
-dev.off()
-# 
+
+
 # #-----------------------------------------------------------------------------------------------
 # # For whole study area
 # #-----------------------------------------------------------------------------------------------

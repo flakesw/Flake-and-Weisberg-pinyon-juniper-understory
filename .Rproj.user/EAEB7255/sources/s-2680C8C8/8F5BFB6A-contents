@@ -11,6 +11,8 @@ daub <- read.csv("./raw data/daub_cover.csv")
   daub[daub$Plot == "NPElectricEel120", "Plot"] <- "NPELECTRICEEL120"
   daub[daub$Plot == "NPElectricEel240", "Plot"] <- "NPELECTRICEEL240"
   daub[daub$Plot == "NPElectricEel360", "Plot"] <- "NPELECTRICEEL360"
+  
+  
 trees <- read.csv("./raw data/trees_updated_with_logs_041716.csv")
 tree_pdc <- read.csv("./raw data/all_trees_with_delta_and_ENN_041916.csv")
 greenwood_under <- read.csv("./raw data/Greenwood_Understory_Variables_SF_edits.csv")

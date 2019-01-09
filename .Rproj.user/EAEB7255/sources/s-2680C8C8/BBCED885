@@ -1,0 +1,22 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1547060059118.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "966839227",
+    "id" : "BBCED885",
+    "lastKnownWriteTime" : 1547068546,
+    "last_content_update" : 1547068546368,
+    "path" : "~/Research/MS Thesis/Understory/plot_level_understory.R",
+    "project_path" : "plot_level_understory.R",
+    "properties" : {
+        "cursorPosition" : "21,12",
+        "scrollLine" : "8"
+    },
+    "relative_order" : 8,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_source"
+}
