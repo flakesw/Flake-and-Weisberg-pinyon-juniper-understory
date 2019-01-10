@@ -1,0 +1,29 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1547069427357.000,
+    "dirty" : false,
+    "encoding" : "",
+    "folds" : "",
+    "hash" : "0",
+    "id" : "6DD0CFE5",
+    "lastKnownWriteTime" : 1546898750,
+    "last_content_update" : 1547069427357,
+    "path" : null,
+    "project_path" : null,
+    "properties" : {
+        "cacheKey" : "6F672F8B",
+        "caption" : "plot_daub_cover",
+        "contentUrl" : "grid_resource/gridviewer.html?env=&obj=plot_daub_cover&cache_key=6F672F8B",
+        "displayedObservations" : 102,
+        "environment" : "",
+        "object" : "plot_daub_cover",
+        "preview" : 0,
+        "totalObservations" : 102,
+        "variables" : 13
+    },
+    "relative_order" : 9,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_dataframe"
+}

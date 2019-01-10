@@ -8,7 +8,7 @@ library("vegan")
 library("reshape2")
 library("plyr")
 
-setwd("C:/Users/Sam/Google Drive/Projects/MS Thesis/Understory")
+setwd("C:/Users/Sam/Documents/Research/MS Thesis/Understory")
 
 plot_data <- read.csv("./clean data/plot_data.csv")
 
@@ -20,6 +20,10 @@ plot_data <- read.csv("./clean data/plot_data.csv")
 # 
 
 #exploration
+hist(asin(sqrt(plot_data$All/100)))
+hist(logit(plot_data$All/100 + min(plot_data[plot_data$All != 0, "All"])))
+hist(log(plot_data$All/100 + .01))
+
 hist(asin(sqrt(plot_data$Cheatgrass/100)))
 hist(logit(plot_data$Cheatgrass/100 + min(plot_data[plot_data$Cheatgrass != 0, "Cheatgrass"])))
 hist(log(plot_data$Cheatgrass/100 + .01))

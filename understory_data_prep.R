@@ -4,14 +4,20 @@ library("reshape2")
 library("plyr")
 library("effects")
 
-daub <- read.csv("./raw data/daub_cover.csv")
-  daub$Midpoint.value <- as.numeric(as.character((daub$Midpoint.value)))
-  daub$Plot <- as.character(daub$Plot)
-  daub[daub$Plot == "NPElectricEel", "Plot"] <- "NPELECTRICEEL"
-  daub[daub$Plot == "NPElectricEel120", "Plot"] <- "NPELECTRICEEL120"
-  daub[daub$Plot == "NPElectricEel240", "Plot"] <- "NPELECTRICEEL240"
-  daub[daub$Plot == "NPElectricEel360", "Plot"] <- "NPELECTRICEEL360"
-  
+
+daub <- read.csv("./raw data/daub_cover.csv", stringsAsFactors = FALSE)
+
+#some data proofing
+daub <- daub[(daub$Transect %in% c("N", "E", "S", "W")), ]
+daub$Plot <- as.character(daub$Plot)
+daub[daub$Plot == "NPElectricEel", "Plot"] <- "NPELECTRICEEL"
+daub[daub$Plot == "NPElectricEel120", "Plot"] <- "NPELECTRICEEL120"
+daub[daub$Plot == "NPElectricEel240", "Plot"] <- "NPELECTRICEEL240"
+daub[daub$Plot == "NPElectricEel360", "Plot"] <- "NPELECTRICEEL360"
+daub$Midpoint.value <- as.numeric(as.character((daub$Midpoint.value)))
+daub$unique_quad <- paste0(daub$Plot, daub$Transect, daub$Meter) 
+daub[daub$Cover.type == "Perennial forb ", "Cover.type"] <- "Perennial forb"
+daub[daub$Cover.type == "Shrub ", "Cover.type"] <- "Shrub"
   
 trees <- read.csv("./raw data/trees_updated_with_logs_041716.csv")
 tree_pdc <- read.csv("./raw data/all_trees_with_delta_and_ENN_041916.csv")
@@ -29,6 +35,9 @@ other_vars <- read.csv("./raw data/all_vars_EXPORT.csv")
 plot_daub_cover <- dcast(daub, Plot ~ Cover.type, value.var = "Midpoint.value", fun.aggregate = mean)
 names(plot_daub_cover) <- c("Plot", "Aforb", "Bg", "Cheatgrass", "Crust", "Gravel", "Litter",
                             "Agrass", "Pforb", "Pgrass", "Rock", "Shrub")
+plot_daub_cover$All <- plot_daub_cover$Aforb + plot_daub_cover$Cheatgrass + plot_daub_cover$Agrass + plot_daub_cover$Pforb +
+                      plot_daub_cover$Pgrass + plot_daub_cover$Shrub
+
 #-------------------------------------------------------------
 #Create tree data plot-level
 
