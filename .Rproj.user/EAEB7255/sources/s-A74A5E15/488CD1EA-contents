@@ -143,10 +143,10 @@ plots_to_use <- unique(ms$Plot)[plots_to_use_dead & plots_to_use_live]
 #------------------------------------------------------------------------------
 #perform analysis for the four FTs
 types <- c("All", "Perennial grass", "Cheatgrass", "Perennial forb", "Shrub")
-
+ntypes <- length(types)
 #initialize a list of dataframes to catch the electivities at each plot/FT
 elect_results <- list()
-for(i in 1:5){
+for(i in 1:ntypes){
   elect_results[[i]] <- data.frame(Plot = numeric(0),
                                    Dead = numeric(0),
                                    Live = numeric(0),
@@ -206,7 +206,7 @@ nit <- 999 #number of monte carlo draws
 
 #initialize a list of dataframes to catch the electivities at each plot/FT
 elect_means <- list()
-for(i in 1:5){
+for(i in 1:ntypes){
   elect_means[[i]] <- data.frame(Iter = numeric(0),
                                  Dead = numeric(0),
                                  Live = numeric(0),
@@ -279,7 +279,7 @@ for(type in types){
 
 
 results_boots <- list()
-for(i in 1:5){
+for(i in 1:ntypes){
   results_boots[[i]] <- data.frame(Dead = numeric(2),
                                  Live = numeric(2),
                                  Inter = numeric(2),
@@ -291,7 +291,7 @@ for(i in 1:5){
 names(results_boots) <- types
 
 #calculate p-values from distribution of bootstrapped mean electivities
-for(i in 1:5){
+for(i in 1:ntypes){
 emp_mean <- apply(elect_results[[i]][, 2:7], 2, FUN = function(x){mean(x, na.rm = TRUE)})
 
 pvals <- c(sum(elect_means[[i]][2] > emp_mean[1]), 
@@ -327,7 +327,7 @@ par(mfrow = c(3,2),
     mar = c(2,1,1,2),
     oma = c(2,3,1,0))
 
-for(i in 1:5){
+for(i in 1:ntypes){
 
   melt_elect <- melt(elect_results[[i]][, 2:4])
   plot(melt_elect$value ~ I(as.numeric(melt_elect$variable)+ runif(nrow(melt_elect), -.1, .1 )),
