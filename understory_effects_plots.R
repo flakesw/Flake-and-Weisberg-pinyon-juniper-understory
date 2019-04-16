@@ -1,6 +1,6 @@
 ### Code to make effects plots
 
-# TODO scheck what models are fit, fit them in another script and import them to here
+# TODO check what models are fit, fit them in another script and import them to here
 
 library(visreg)
 library(car)
@@ -11,6 +11,7 @@ pardefault <- par(no.readonly = T)
 source('addTrans.R', echo=FALSE)
 
 ### set some parameters to be use throughout
+all <- all_plot
 cg <- cheatgrass_plot
 pg <- pgrass_plot
 pf <- pforb_plot
@@ -28,11 +29,67 @@ inv.as <- function(x){
   (sin(x))^2
 }
 
-##############################################
-## Creating new predictions
-##############################################
-model <- cg
+# function to find the nearest y-value for an x data point, to add to partial residuals
+# for plotting. Stolen from effects package
+closest <- function(x, x0){
+  apply(outer(x, x0, FUN = function(x, x0) abs(x - x0)), 1, which.min)
+}
 
+#####################################################################
+# All understory vegetation, just two panels
+#####################################################################
+vars <- c("Tree_cover", "Delta_pdc")
+labels <- c("Tree cover", "Change in live canopy (%)")
+
+tiff(filename="./outputs/all_understory_effects.tiff", 
+     type="cairo",
+     units="in", 
+     width = 3, 
+     height=5, 
+     pointsize=12, 
+     res=600)
+
+par(mfrow = c(2,1), oma = c(2,3,0,0), mar = c(3,1,1,1), family = "serif", bty = 'n')
+
+for(i in c(1:2)){
+  var <- vars[i]
+  
+  eff <- Effect(all_plot, partial.residuals = TRUE, focal.predictors = var)
+  
+  y <- eff$fit
+  x <- eff$x[[var]]
+  x.fit <- eff$x.all[[var]]
+  
+  fitted <- y[closest(x.fit, x)]
+  resids <- inv.as(eff$residuals + fitted)
+  
+  plot(NA,
+       xlim = c(min(x), max(x)),
+       ylim = c(0, 0.5),
+       xlab = "",
+       ylab = "")
+  
+  points(resids ~ eff$x.all[[var]], 
+         pch = 21, 
+         bg='grey60',
+         col = 'grey30')
+  
+  lines(inv.as(y) ~ x, lwd = 2)
+  lines(inv.as(eff$lower) ~ x)
+  lines(inv.as(eff$upper) ~ x)
+  polygon(c(x, rev(x)), c(inv.as(eff$upper), rev(inv.as(eff$lower))),
+          col = addTrans("#68EBC4",30), border = NA)
+
+  mtext(side = 2, text = "Understory cover", outer = TRUE, line = 1.7)
+  mtext(side = 1, text = labels[i], line = 2)
+}
+
+dev.off()
+
+
+####################################################################
+## Multipanel figure to compare between functional types
+####################################################################
 
 # Calculate residuals from predicted values and observed values
 resid <- residuals(model)
@@ -49,11 +106,9 @@ cwd_sd <- sd(plot_data$cwd_normal_cum)
 Delta_pdc_mean <-  mean(plot_data$Delta_pdc)
 Delta_pdc_sd <- sd(plot_data$Delta_pdc)
 
-################################
-## Calcuate partial residuals, effects, for avg_BA
-################################
-
-model <- cg
+#--------------------------------------------------------------------------
+## Calcuate partial residuals, effects
+#--------------------------------------------------------------------------
 
 C_tc <- data.frame(
   Tree_cover = seq(min(plot_data$Tree_cover), max(plot_data$Tree_cover), length.out = 102),
@@ -140,13 +195,13 @@ setwd("C:/Users/Sam/Documents/Research/MS Thesis/Understory/outputs") #where the
 opar <- par(no.readonly = TRUE)
 par(opar)
 
-png(filename="understory_effects.png", 
+tiff(filename="understory_effects.tiff", 
     type="cairo",
     units="in", 
     width = 7, 
     height=5, 
     pointsize=15, 
-    res=160)
+    res=600)
 
 layout(matrix(c(1,2,3,4,5,6), nrow = 2, ncol = 3, byrow = TRUE))
 
@@ -165,14 +220,14 @@ plot(NA,
      bty = 'n',
      xaxt = 'n',
      yaxt = 'n')
-lines(inv.as(preds_tc_cg$predictions) ~ I(preds_tc_cg$predictor*100), lwd = 2, lty = 1, col = "#1b9e77")
+lines(inv.as(preds_tc_cg$predictions) ~ I(preds_tc_cg$predictor*100), lwd = 2, lty = 2, col = "#1b9e77")
 lines(inv.as(preds_tc_pg$predictions) ~ I(preds_tc_cg$predictor*100), lwd = 2, lty = 2, col = "#d95f02")
-lines(inv.as(preds_tc_pf$predictions) ~ I(preds_tc_cg$predictor*100), lwd = 2, lty = 3, col = "#7570b3")
-lines(inv.as(preds_tc_sh$predictions) ~ I(preds_tc_cg$predictor*100), lwd = 2, lty = 4, col = "#e7298a")
+lines(inv.as(preds_tc_pf$predictions) ~ I(preds_tc_cg$predictor*100), lwd = 2, lty = 1, col = "#7570b3")
+lines(inv.as(preds_tc_sh$predictions) ~ I(preds_tc_cg$predictor*100), lwd = 2, lty = 1, col = "#e7298a")
 axis(side = 1)
 axis(side = 2)
-mtext(text = "Tree Cover (%)", side = 1, line = 2.2)
-mtext(text = "Predicted Cover", side = 2, outer = TRUE, line = 2, cex = 1)
+mtext(text = "Tree cover (%)", side = 1, line = 2.2)
+mtext(text = "Understory cover (%)", side = 2, outer = TRUE, line = 2, cex = 1)
 mtext(text = "(a)", side = 1, line = -10, adj = 0.05)
 
 
@@ -188,10 +243,10 @@ plot(NA,
      bty = 'n',
      xaxt = 'n',
      yaxt = 'n')
-lines(inv.as(preds_awc_cg$predictions) ~ I(preds_awc_cg$predictor), lwd = 2, lty = 1, col = "#1b9e77")
+lines(inv.as(preds_awc_cg$predictions) ~ I(preds_awc_cg$predictor), lwd = 2, lty = 2, col = "#1b9e77")
 lines(inv.as(preds_awc_pg$predictions) ~ I(preds_awc_cg$predictor), lwd = 2, lty = 2, col = "#d95f02")
-lines(inv.as(preds_awc_pf$predictions) ~ I(preds_awc_cg$predictor), lwd = 2, lty = 3, col = "#7570b3")
-lines(inv.as(preds_awc_sh$predictions) ~ I(preds_awc_cg$predictor), lwd = 2, lty = 4, col = "#e7298a")
+lines(inv.as(preds_awc_pf$predictions) ~ I(preds_awc_cg$predictor), lwd = 2, lty = 2, col = "#7570b3")
+lines(inv.as(preds_awc_sh$predictions) ~ I(preds_awc_cg$predictor), lwd = 2, lty = 2, col = "#e7298a")
 axis(side = 1)
 axis(side = 2)
 mtext(text = "Soil AWC (%)", side = 1, line = 2.2)
@@ -199,8 +254,8 @@ mtext(text = "(b)", side = 1, line = -10, adj = 0.05)
 
 
 plot.new()
-legend("topright", legend = c("Cheatgrass", "Perr. Grass", "Perr. Forb", "Shrub"), 
-       lty = c(1,2,3,4), lwd = 2, cex = 1.3, col = c("#1b9e77", "#d95f02", "#7570b3", "#e7298a"))
+legend("topright", legend = c("Cheatgrass", "Per. Grass", "Per. Forb", "Shrub"), 
+       lty = c(1), lwd = 2, cex = 1.3, col = c("#1b9e77", "#d95f02", "#7570b3", "#e7298a"))
 
 plot(NA,
      ylim = c(0,.2),
@@ -215,12 +270,12 @@ plot(NA,
      xaxt = 'n',
      yaxt = 'n')
 lines(inv.as(preds_pdc_10_cg$predictions) ~ I(preds_pdc_10_cg$predictor), lwd = 2, lty = 1, col = "#1b9e77")
-lines(inv.as(preds_pdc_10_pg$predictions) ~ I(preds_pdc_10_cg$predictor), lwd = 2, lty = 2, col = "#d95f02")
-lines(inv.as(preds_pdc_10_pf$predictions) ~ I(preds_pdc_10_cg$predictor), lwd = 2, lty = 3, col = "#7570b3")
-lines(inv.as(preds_pdc_10_sh$predictions) ~ I(preds_pdc_10_cg$predictor), lwd = 2, lty = 4, col = "#e7298a")
+lines(inv.as(preds_pdc_10_pg$predictions) ~ I(preds_pdc_10_cg$predictor), lwd = 2, lty = 1, col = "#d95f02")
+lines(inv.as(preds_pdc_10_pf$predictions) ~ I(preds_pdc_10_cg$predictor), lwd = 2, lty = 2, col = "#7570b3")
+lines(inv.as(preds_pdc_10_sh$predictions) ~ I(preds_pdc_10_cg$predictor), lwd = 2, lty = 2, col = "#e7298a")
 axis(side = 1)
 axis(side = 2)
-text(x = -30, y = .09, labels = "10% CWD", cex = 1.3)
+text(x = -30, y = .18, labels = "10% CWD", cex = 1.3)
 mtext(text = "(c)", side = 1, line = -10, adj = 0.05)
 
 plot(NA,
@@ -236,18 +291,18 @@ plot(NA,
      xaxt = 'n',
      yaxt = 'n')
 lines(inv.as(preds_pdc_50_cg$predictions) ~ I(preds_pdc_90_cg$predictor), lwd = 2, lty = 1, col = "#1b9e77")
-lines(inv.as(preds_pdc_50_pg$predictions) ~ I(preds_pdc_90_cg$predictor), lwd = 2, lty = 2, col = "#d95f02")
-lines(inv.as(preds_pdc_50_pf$predictions) ~ I(preds_pdc_90_cg$predictor), lwd = 2, lty = 3, col = "#7570b3")
-lines(inv.as(preds_pdc_50_sh$predictions) ~ I(preds_pdc_90_cg$predictor), lwd = 2, lty = 4, col = "#e7298a")
+lines(inv.as(preds_pdc_50_pg$predictions) ~ I(preds_pdc_90_cg$predictor), lwd = 2, lty = 1, col = "#d95f02")
+lines(inv.as(preds_pdc_50_pf$predictions) ~ I(preds_pdc_90_cg$predictor), lwd = 2, lty = 2, col = "#7570b3")
+lines(inv.as(preds_pdc_50_sh$predictions) ~ I(preds_pdc_90_cg$predictor), lwd = 2, lty = 2, col = "#e7298a")
 axis(side = 1)
 axis(side = 2)
-text(x = -30, y = .09, labels = "50% CWD", cex = 1.3)
-mtext(text = "Change in Live Canopy (%)", side = 1, line = 2.2)
+text(x = -30, y = .18, labels = "50% CWD", cex = 1.3)
+mtext(text = "Change in live canopy (%)", side = 1, line = 2.2)
 mtext(text = "(d)", side = 1, line = -10, adj = 0.05)
 
 
 plot(NA,
-     ylim = c(0,.3),
+     ylim = c(0,.2),
      xlim = c(min(plot_data$Delta_pdc), max(plot_data$Delta_pdc)),
      xlab = "",
      ylab = "",
@@ -259,12 +314,12 @@ plot(NA,
      xaxt = 'n',
      yaxt = 'n')
 lines(inv.as(preds_pdc_90_cg$predictions) ~ I(preds_pdc_90_cg$predictor), lwd = 2, lty = 1, col = "#1b9e77")
-lines(inv.as(preds_pdc_90_pg$predictions) ~ I(preds_pdc_90_cg$predictor), lwd = 2, lty = 2, col = "#d95f02")
-lines(inv.as(preds_pdc_90_pf$predictions) ~ I(preds_pdc_90_cg$predictor), lwd = 2, lty = 3, col = "#7570b3")
-lines(inv.as(preds_pdc_90_sh$predictions) ~ I(preds_pdc_90_cg$predictor), lwd = 2, lty = 4, col = "#e7298a")
+lines(inv.as(preds_pdc_90_pg$predictions) ~ I(preds_pdc_90_cg$predictor), lwd = 2, lty = 1, col = "#d95f02")
+lines(inv.as(preds_pdc_90_pf$predictions) ~ I(preds_pdc_90_cg$predictor), lwd = 2, lty = 2, col = "#7570b3")
+lines(inv.as(preds_pdc_90_sh$predictions) ~ I(preds_pdc_90_cg$predictor), lwd = 2, lty = 2, col = "#e7298a")
 axis(side = 1)
 axis(side = 2)
-text(x = -30, y = .09, labels = "90% CWD", cex = 1.3)
+text(x = -30, y = .18, labels = "90% CWD", cex = 1.3)
 mtext(text = "(e)", side = 1, line = -10, adj = 0.05)
 
 
@@ -273,30 +328,35 @@ dev.off()
 par(pardefault)
 
 
-#----------------------------------------------------------------------------------
+###################################################################################
 # Cheatgrass change over time
-#----------------------------------------------------------------------------------
+###################################################################################
 ## new data
-model <- 
+model <- cg_change_lm
 
+#create dataframe of new data to calculate predictions and envelope
 C_cg_change_10 <- data.frame(
   cwd_normal_cum = unname(quantile(compare$cwd_normal_cum, .1)),
-  Delta_pdc = seq(-60,15, length.out = 100)
+  Delta_pdc = seq(-70,15, length.out = 100)
 )
 
 
 C_cg_change_50 <- data.frame(
   cwd_normal_cum = unname(quantile(compare$cwd_normal_cum, .5)),
-  Delta_pdc = seq(-60,15, length.out = 100)
+  Delta_pdc = seq(-70,15, length.out = 100)
 )
 
 
 C_cg_change_90 <- data.frame(
   cwd_normal_cum = unname(quantile(compare$cwd_normal_cum, .9)),
-  Delta_pdc = seq(-60,15, length.out = 100)
+  Delta_pdc = seq(-70,15, length.out = 100)
 )
 
-#calculate partial residuals for different levels of cwd
+C_cg <- list(C_cg_change_10, C_cg_change_50, C_cg_change_90)
+
+
+# calculate partial residuals for different levels of cwd
+# this is an utterly repugnant way to do this
 
 part_resids_10 <- residuals(model) + model$model[, "Delta_pdc"] * coef(model)["Delta_pdc"] + 
   unname(quantile(compare$cwd_normal_cum, .1)) * coef(model)["cwd_normal_cum"] +
@@ -313,8 +373,9 @@ part_resids_90 <- residuals(model) + model$model[, "Delta_pdc"] * coef(model)["D
   model$model[, "Delta_pdc"] * unname(quantile(compare$cwd_normal_cum, .9)) * coef(model)["Delta_pdc:cwd_normal_cum"] +
   coef(model)["(Intercept)"] 
 
+part_resids <- list(part_resids_10, part_resids_50, part_resids_90)
 
-#function to calculate predictions
+#function to calculate predictions and envelope
 preds_cg_change <- function(model, C, predictor){
     preds <- data.frame(
     predictions = predict(model, se = TRUE, newdata = C, type = "response")$fit,
@@ -326,122 +387,76 @@ preds_cg_change <- function(model, C, predictor){
   return(preds)
 }
 
+#calculate predictions and prediction envelope for each level of CWD
 cg_change_10 <- preds_cg_change(cg_change_lm, C_cg_change_10, "Delta_pdc")
 cg_change_50 <- preds_cg_change(cg_change_lm, C_cg_change_50, "Delta_pdc")
 cg_change_90 <- preds_cg_change(cg_change_lm, C_cg_change_90, "Delta_pdc")
 
+cg_change <- list(cg_change_10, cg_change_50, cg_change_90)
 
 
-setwd("C:\\Users\\Sam\\Google Drive\\Thesis related\\Understory\\outputs") #where the plots go
-
-png(filename="cheatgrass_change_effect.png", 
+#generate the figure
+tiff(filename="./outputs/cheatgrass_change_effect.tif", 
     type="cairo",
     units="in", 
-    width = 5, 
+    width = 4, 
     height=3, 
-    pointsize=15, 
-    res=160)
+    pointsize=12, 
+    res=600)
 
 layout(matrix(c(1,2,3), nrow=1, ncol=3, byrow = TRUE))
-par(mar = c(0,1,0,0), oma = c(3,4,2,2), family = "serif", bty = 'n')
+par(mar = c(0,1,0,0), oma = c(6,4,2,2), family = "serif", bty = 'n')
 
+panel_labels <- c("10% CWD", "50% CWD", "90% CWD")
+
+for(i in c(1:3)){
   plot(NA,
-       ylim = c(-.03,.06),
-       xlim = c(-50,10),
+       ylim = c(-0.1, 0.15),
+       xlim = c(-70, 10 ),
        xlab = "",
        ylab = "",
        xaxt = "n",
+       yaxt = "n",
        bg='grey60',
        col = 'grey30',
        pch = 21,
        cex.lab = 1.5)
   abline(h = 0, lty = 4, lwd = 1.3)
-  lines((inv.as(cg_change_10$predictions) + min(compare$Cheatgrass/100 - compare$Cheatgrass.Cover/100)) ~ I(cg_change_10$predictor), lwd = 2, lty = 1, col = "#1b9e77")
-  lines((inv.as(cg_change_10$lo) + min(compare$Cheatgrass/100 - compare$Cheatgrass.Cover/100)) ~ I(cg_change_10$predictor), lwd = 1, lty = 1, col = "#1b9e77")
-  lines((inv.as(cg_change_10$hi) + min(compare$Cheatgrass/100 - compare$Cheatgrass.Cover/100)) ~ I(cg_change_10$predictor), lwd = 1, lty = 1, col = "#1b9e77")
-  polygon(c(cg_change_10$predictor, rev(cg_change_10$predictor)), c((exp(cg_change_10$hi) + min(compare$Cheatgrass/100 - compare$Cheatgrass.Cover/100)), 
-                                                                    rev((exp(cg_change_10$lo) + min(compare$Cheatgrass/100 - compare$Cheatgrass.Cover/100)))),
+  lines(cg_change[[i]]$predictions ~ cg_change[[i]]$predictor, lwd = 2, lty = 1, col = "#1b9e77")
+  lines(cg_change[[i]]$lo ~ cg_change[[i]]$predictor, lwd = 1, lty = 1, col = "#1b9e77")
+  lines(cg_change[[i]]$hi ~ cg_change[[i]]$predictor, lwd = 1, lty = 1, col = "#1b9e77")
+  polygon(c(cg_change[[i]]$predictor, rev(cg_change[[i]]$predictor)), c(cg_change[[i]]$hi, 
+                                                                    rev(cg_change[[i]]$lo)),
           col = addTrans("#68EBC4",30), border = NA) #fills in the area between high and low confidence intervals
   
-  points((exp(part_resids_10[model$model[, "cwd_normal_cum"] < unname(quantile(compare$cwd_normal_cum, .3))])
-         +  min(compare$Cheatgrass/100 - compare$Cheatgrass.Cover/100))~ 
-           model$model[model$model[, "cwd_normal_cum"] < unname(quantile(compare$cwd_normal_cum, .3)), "Delta_pdc"],
+  # I also hate this: plot the residuals ~ delta_pdc for each level of CWD
+    points(
+      if(i == 1){
+        part_resids[[i]][model$model[, "cwd_normal_cum"] < unname(quantile(compare$cwd_normal_cum, 0.3))] ~ 
+           model$model[model$model[, "cwd_normal_cum"] < unname(quantile(compare$cwd_normal_cum, 0.3)), "Delta_pdc"]
+      }else if(i ==2){
+        part_resids[[i]][findInterval(model$model[, "cwd_normal_cum"], unname(quantile(compare$cwd_normal_cum, c(0.3, 0.7)))) == 1] ~ 
+      model$model[findInterval(model$model[, "cwd_normal_cum"], unname(quantile(compare$cwd_normal_cum, c(0.3, 0.7)))) == 1, "Delta_pdc"]
+      }else if (i == 3){
+        part_resids[[i]][model$model[, "cwd_normal_cum"] > unname(quantile(compare$cwd_normal_cum, 0.7))] ~ 
+          model$model[model$model[, "cwd_normal_cum"] > unname(quantile(compare$cwd_normal_cum, 0.7)), "Delta_pdc"]
+      },
          bg='grey60',
          col = 'grey30',
          pch = 21,
          cex = 1.5)
- axis(side = 1, at = c(-40, -20, 0), labels = TRUE, mgp=c(1.5,-0.5,-1.5))
- axis(side = 1, at = c(-50, -30, -10, 10), labels = FALSE, tcl = -.25, mgp=c(1.5,-0.5,-1.5))
- text(x = -20, y = .06, labels = "10% CWD")
   
-  
-  plot(NA,
-       ylim = c(-.03,.06),
-       xlim = c(-50,10),
-       xlab = "",
-       ylab = "",
-       yaxt = "n",
-       xaxt = "n",
-       bg='grey60',
-       col = 'grey30',
-       pch = 21,
-       cex.lab = 1.5)
-  abline(h = 0, lty = 4, lwd = 1.3)
-  lines((exp(cg_change_50$predictions) + min(compare$Cheatgrass/100 - compare$Cheatgrass.Cover/100)) ~ I(cg_change_10$predictor), lwd = 2, lty = 1, col = "#1b9e77")
-  lines((exp(cg_change_50$lo) + min(compare$Cheatgrass/100 - compare$Cheatgrass.Cover/100)) ~ I(cg_change_10$predictor), lwd = 1, lty = 1, col = "#1b9e77")
-  lines((exp(cg_change_50$hi) + min(compare$Cheatgrass/100 - compare$Cheatgrass.Cover/100)) ~ I(cg_change_10$predictor), lwd = 1, lty = 1, col = "#1b9e77")
-  polygon(c(cg_change_50$predictor, rev(cg_change_50$predictor)), c((exp(cg_change_50$hi) + min(compare$Cheatgrass/100 - compare$Cheatgrass.Cover/100)), 
-                                                                    rev((exp(cg_change_50$lo) + min(compare$Cheatgrass/100 - compare$Cheatgrass.Cover/100)))),
-          col = addTrans("#68EBC4",30), border = NA) #fills in the area between high and low confidence intervals
-  
-  
-   points((exp(part_resids_50[model$model[, "cwd_normal_cum"] > unname(quantile(compare$cwd_normal_cum, .3)) &
-                            model$model[, "cwd_normal_cum"] < unname(quantile(compare$cwd_normal_cum, .7))])
-          +  min(compare$Cheatgrass/100 - compare$Cheatgrass.Cover/100)) ~ 
-           model$model[model$model[, "cwd_normal_cum"] > unname(quantile(compare$cwd_normal_cum, .3)) &
-                         model$model[, "cwd_normal_cum"] < unname(quantile(compare$cwd_normal_cum, .7)), "Delta_pdc"],
-          bg='grey60',
-          col = 'grey30',
-          pch = 21,
-          cex = 1.5)
-  axis(side = 2, labels = FALSE)
-  axis(side = 1, at = c(-40, -20, 0), labels = TRUE, mgp=c(1.5,-0.5,-1.5))
-  axis(side = 1, at = c(-50, -30, -10, 10), labels = FALSE, tcl = -.25, mgp=c(1.5,-0.5,-1.5))
-  text(x = -20, y = .06, labels = "50% CWD")
-  
-  
-  plot(NA,
-       ylim = c(-.03,.06),
-       xlim = c(-50,10),
-       xlab = "",
-       ylab = "",
-       yaxt = "n",
-       xaxt = "n",
-       bg='grey60',
-       col = 'grey30',
-       pch = 21,
-       cex.lab = 1.5)
-  abline(h = 0, lty = 4, lwd = 1.3)
-  lines((exp(cg_change_90$predictions) + min(compare$Cheatgrass/100 - compare$Cheatgrass.Cover/100)) ~ I(cg_change_10$predictor), lwd = 2, lty = 1, col = "#1b9e77")
-  lines((exp(cg_change_90$lo) + min(compare$Cheatgrass/100 - compare$Cheatgrass.Cover/100)) ~ I(cg_change_10$predictor), lwd = 1, lty = 1, col = "#1b9e77")
-  lines((exp(cg_change_90$hi) + min(compare$Cheatgrass/100 - compare$Cheatgrass.Cover/100)) ~ I(cg_change_10$predictor), lwd = 1, lty = 1, col = "#1b9e77")
-  polygon(c(cg_change_90$predictor, rev(cg_change_90$predictor)), c((exp(cg_change_90$hi) + min(compare$Cheatgrass/100 - compare$Cheatgrass.Cover/100)), 
-                                                                    rev((exp(cg_change_90$lo) + min(compare$Cheatgrass/100 - compare$Cheatgrass.Cover/100)))),
-          col = addTrans("#68EBC4",30), border = NA) #fills in the area between high and low confidence intervals
-  
-  points((exp(part_resids_90[model$model[, "cwd_normal_cum"] > unname(quantile(compare$cwd_normal_cum, .7))])
-          +  min(compare$Cheatgrass/100 - compare$Cheatgrass.Cover/100)) ~ 
-           model$model[model$model[, "cwd_normal_cum"] > unname(quantile(compare$cwd_normal_cum, .7)), "Delta_pdc"],
-         bg='grey60',
-         col = 'grey30',
-         pch = 21,
-         cex = 1.5)
-  axis(side = 2, labels = FALSE)
-  axis(side = 1, at = c(-40, -20, 0), labels = TRUE, mgp=c(1.5,-0.5,-1.5))
-  axis(side = 1, at = c(-50, -30, -10, 10), labels = FALSE, tcl = -.25, mgp=c(1.5,-0.5,-1.5))
-  text(x = -20, y = .06, labels = "90% CWD")
-  
-  mtext(side = 1, text = "Change in Live Crown", outer = TRUE, line = 1.7)
-  mtext(side = 2, text = "Pred. Change Cheatgrass Cover", outer = TRUE, line = 2.3)
+ if(i == 1){
+   axis(side = 2, at = c(-0.05, 0.05), labels = FALSE, tcl = -0.25)
+   axis(side = 2, at = c(-0.1, 0, 0.1))
+   }
+ axis(side = 1, at = c(-60, -30, 0), labels = TRUE)
+ axis(side = 1, at = c(-50, -40, -20, -10, 10), labels = FALSE, tcl = -.25)
+ text(x = -30, y = .11, labels = panel_labels[i], cex = 1.2)
+
+}
+   
+  mtext(side = 1, text = "Change in live canopy (%)", outer = TRUE, line = 2.6)
+  mtext(side = 2, text = "Change in cheatgrass cover", outer = TRUE, line = 2.3)
 
 dev.off()

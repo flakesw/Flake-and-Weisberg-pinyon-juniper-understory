@@ -23,6 +23,10 @@ greenwood_under <- read.csv("./raw data/Greenwood_Understory_Variables_SF_edits.
 hist(asin(sqrt(plot_data$All/100)))
 hist(logit(plot_data$All/100 + min(plot_data[plot_data$All != 0, "All"])))
 hist(log(plot_data$All/100))
+plot((plot_data$All/100) ~ plot_data$Tree_cover)
+plot(asin(sqrt(plot_data$All/100)) ~ plot_data$Tree_cover)
+plot(asin(sqrt(plot_data$All/100)) ~ plot_data$Delta_pdc)
+plot(asin(sqrt(plot_data$All/100)) ~ plot_data$cwd_normal_cum)
 
 hist(asin(sqrt(plot_data$Cheatgrass/100)))
 hist(logit(plot_data$Cheatgrass/100 + min(plot_data[plot_data$Cheatgrass != 0, "Cheatgrass"])))
@@ -54,11 +58,11 @@ plot(plot_data$Cheatgrass ~ plot_data$cwd_normal_cum)
 all_plot <- lmer(asin(sqrt(All/100)) ~ scale(Tree_cover) + scale(Delta_pdc)*scale(cwd_normal_cum) +
                           scale(AWC) + (1|Cluster), data = plot_data)
 
-all_plot <- lmer(logit(All/100) ~ scale(Tree_cover) + scale(Delta_pdc)*scale(cwd_normal_cum) +
-                          scale(AWC) + (1|Cluster), data = plot_data)
-
-summary(lm(asin(sqrt(All/100)) ~ scale(Tree_cover) + scale(Delta_pdc)*scale(cwd_normal_cum) +
-             scale(AWC), data = plot_data))
+# all_plot <- lmer(logit(All/100) ~ scale(Tree_cover) + scale(Delta_pdc)*scale(cwd_normal_cum) +
+#                           scale(AWC) + (1|Cluster), data = plot_data)
+# 
+# summary(lm(asin(sqrt(All/100)) ~ scale(Tree_cover) + scale(Delta_pdc)*scale(cwd_normal_cum) +
+#              scale(AWC), data = plot_data))
 
 summary(all_plot, ddf = "Kenward-Roger")
 r.squaredGLMM(all_plot)
@@ -136,7 +140,7 @@ coefplot2(cheatgrass_plot, add = TRUE, spacing = 10)
 
 
 #-----------------------------------------------
-# Comparison of greenwood and 2015
+# Comparison between 2005 and 2015 samples
 #-----------------------------------------------
 compare <- join(plot_data, greenwood_under, by = "Plot", type = "inner")
 
@@ -154,8 +158,9 @@ cor.test(compare$Cheatgrass - compare$Cheatgrass.Cover, compare$cwd_normal_cum, 
          alternative = "two.sided", exact = FALSE)
 
 #linear model of log change ~ delta pdc and cwd
-compare$log_cg_change <- log(I(compare$Cheatgrass/100 - compare$Cheatgrass.Cover/100 - min(compare$Cheatgrass/100 - compare$Cheatgrass.Cover/100) + .01))
-cg_change_lm <- lm(log_cg_change ~ Delta_pdc*cwd_normal_cum, data= compare)
+# compare <- compare[-10, ] #outlier to remove?
+
+cg_change_lm <- lm(I((Cheatgrass - Cheatgrass.Cover)/100) ~ Delta_pdc*cwd_normal_cum, data= compare)
 
 summary(cg_change_lm)
 plot(cg_change_lm)
@@ -167,7 +172,6 @@ sd(compare$log_cg_change[-c(5,10)])
 mean(compare$log_cg_change[-c(5,10)])
 (compare$log_cg_change[c(5)] - 1.72) / .18
 (compare$log_cg_change[c(10)] - 1.72) / .18
-
 
 summary(cg_change_lm)
 plot(cg_change_lm)
@@ -183,8 +187,9 @@ mean(compare$Pgrass-compare$Perrenial.Grass.Cover)
 t.test(compare$Pgrass, compare$Perrenial.Grass.Cover, paired = TRUE, alternative="less")
 wilcox.test(compare$Pgrass, compare$Perrenial.Grass.Cover, paired = TRUE, alternative="less")
 
-pg_change_lm <- lm(Pgrass - Perrenial.Grass.Cover ~ Delta_pdc*cwd_normal_cum, data= compare)
+pg_change_lm <- lm(Pgrass - Perrenial.Grass.Cover ~ cwd_normal_cum, data= compare)
 summary(pg_change_lm)
+plot(allEffects(pg_change_lm))
 
 ## Perr forb
 plot(I(compare$Aforb + compare$Pforb) ~ compare$Forb.Cover)

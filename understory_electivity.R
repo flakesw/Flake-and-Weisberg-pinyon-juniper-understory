@@ -6,7 +6,7 @@ library(multcompView)
 
 set.seed(16091315)
 
-daub <- read.csv("./raw data/daub_cover.csv", stringsAsFactors = FALSE)
+daub <- read.csv("./Raw data/daub_cover.csv", stringsAsFactors = FALSE)
 
 #some data proofing
   daub <- daub[(daub$Transect %in% c("N", "E", "S", "W")), ]
@@ -158,7 +158,7 @@ for(i in 1:ntypes){
 names(elect_results) <- types
 
 
-for(type in types){
+for(type in types){ # calculate electivity for each functional type
   
   for (i in 1:length(plots_to_use)){
     
@@ -189,9 +189,9 @@ for(type in types){
                           (cov[cov$Group.1 == "Live",2] + prev[which(names(prev) == "Live")]),
                         Inter = (cov[cov$Group.1 == "Inter",2] - prev[which(names(prev) == "Inter")]) / 
                           (cov[cov$Group.1 == "Inter",2] + prev[which(names(prev) == "Inter")]))
-    elect$DL = elect$Dead - elect$Live
-    elect$DI = elect$Dead - elect$Inter
-    elect$LI = elect$Live - elect$Inter
+    elect$DL = (cov[cov$Group.1 == "Dead",2] - cov[cov$Group.1 == "Live",2]) / (cov[cov$Group.1 == "Dead",2] + cov[cov$Group.1 == "Live",2])
+    elect$DI = (cov[cov$Group.1 == "Dead",2] - cov[cov$Group.1 == "Inter",2]) / (cov[cov$Group.1 == "Dead",2] + cov[cov$Group.1 == "Inter",2])
+    elect$LI = (cov[cov$Group.1 == "Live",2] - cov[cov$Group.1 == "Inter",2]) / (cov[cov$Group.1 == "Live",2] + cov[cov$Group.1 == "Inter",2])
     
     elect_results[[type]] <- rbind(elect_results[[type]], elect)
   }
@@ -199,6 +199,8 @@ for(type in types){
 
 saveRDS(elect_results, paste0("./outputs/results_elect_", n_plots, "dead.rds"))
 # elect_results <- readRDS("./outputs/results_elect_1dead.rds")
+
+
 #------------------------------------------------------------------------------
 #Calculate monte carlo means
 #------------------------------------------------------------------------------
@@ -260,9 +262,9 @@ for(type in types){
                             (cov[cov$Group.1 == "Live",2] + prev[which(names(prev) == "Live")]),
                           Inter = (cov[cov$Group.1 == "Inter",2] - prev[which(names(prev) == "Inter")]) / 
                             (cov[cov$Group.1 == "Inter",2] + prev[which(names(prev) == "Inter")]))
-      elect$DL = elect$Dead - elect$Live
-      elect$DI = elect$Dead - elect$Inter
-      elect$LI = elect$Live - elect$Inter
+      elect$DL = (cov[cov$Group.1 == "Dead",2] - cov[cov$Group.1 == "Live",2]) / (cov[cov$Group.1 == "Dead",2] + cov[cov$Group.1 == "Live",2])
+      elect$DI = (cov[cov$Group.1 == "Dead",2] - cov[cov$Group.1 == "Inter",2]) / (cov[cov$Group.1 == "Dead",2] + cov[cov$Group.1 == "Inter",2])
+      elect$LI = (cov[cov$Group.1 == "Live",2] - cov[cov$Group.1 == "Inter",2]) / (cov[cov$Group.1 == "Live",2] + cov[cov$Group.1 == "Inter",2])
       
       elect_rand <- rbind(elect_rand, elect)
     }
@@ -311,17 +313,35 @@ results_boots[[i]][2, ] <- pvals
 saveRDS(results_boots, paste0("./outputs/results_boots_", n_plots, "dead.rds"))
 
 # results_boots <- readRDS("./outputs/results_boots_1dead.rds")
+
+
+#-----------------------------------------------------------------------------------------------
+# Summary table
+#-----------------------------------------------------------------------------------------------
+summary <- as.data.frame(matrix(nrow = 12, ncol = 8))
+for(i in 1:4){
+  for(j in 1:6){
+    summary[3*i - 2, j+2] <- results_boots[[i]][[j]][[1]]
+    summary[3*i - 1, j+2] <- results_boots[[i]][[j]][[1]] - mean(elect_means[[i]][[j + 1]])
+    summary[3*i, j+2] <- results_boots[[i]][[j]][[2]]
+  }
+}
+
+summary[, 2] <- rep(c("Empirical", "Difference", "p-val"), times = 4)
+summary[, 1] <- rep(c("Perennial grass", "Cheatgrass", "Perennial forb", "Shrub"), each = 3)
+names(summary) <- c("FT", "var", "Dead", "Live", "Inter", "D-L", "D-I", "L-I")
+write.csv(summary, "./outputs/electivity summary table.csv")
 #-----------------------------------------------------------------------------------------------
 # Plot of electivity for each FT
 #-----------------------------------------------------------------------------------------------
 
-png(filename="electivity.png", 
+png(filename="./outputs/electivity.png", 
     type="cairo",
     units="in", 
     width = 4, 
     height=4, 
     pointsize=10, 
-    res=160)
+    res=600)
 
 par(mfrow = c(2,2),
     mar = c(2,1,1,2),
@@ -330,18 +350,23 @@ par(mfrow = c(2,2),
 for(i in 1:ntypes){
 
   melt_elect <- melt(elect_results[[i]][, 2:4])
-  plot(melt_elect$value ~ I(as.numeric(melt_elect$variable)+ runif(nrow(melt_elect), -.1, .1 )),
+  plot(NA,
        ylim = c(-1,1),
        xlim = c(.7, 3.3),
-       pch = 21,
-       bg = "grey",
        xaxt = "n")
   pvals <- results_boots[[i]][2, ]
   abline(h = 0)
   
+  vioplot(elect_means[[i]][[2]], add = TRUE, col = addTrans("blue", 30), drawRect = FALSE)
+  vioplot(elect_means[[i]][[3]], at = 2, add = TRUE, col = addTrans("blue", 30), drawRect = FALSE)
+  vioplot(elect_means[[i]][[4]], at = 3, add = TRUE, col = addTrans("blue", 30), drawRect = FALSE)
+  
+  points(melt_elect$value ~ I(as.numeric(melt_elect$variable)+ runif(nrow(melt_elect), -.1, .1 )),
+         pch = 21,
+         bg = "grey")
   means <- aggregate(melt_elect$value, by = list(melt_elect$variable), FUN = function(x){mean(x, na.rm = TRUE)})
   
-  segments(x0 = c(0.9, 1.9, 2.9), y0 = means$x, x1 = c(1.1, 2.1, 3.1), lwd = 3)
+  segments(x0 = c(0.85, 1.85, 2.85), y0 = means$x, x1 = c(1.15, 2.15, 3.15), lwd = 3)
   
   
   # segments(x0 = 1, x1 = 2, y0 = melt_elect[melt_elect$variable == "Dead", "value"],
@@ -355,18 +380,21 @@ for(i in 1:ntypes){
   }
   
   if(i %in% c(3,4)){
-  axis(1, at = c(1,2,3), labels =  c("Dead", "Live", "Interspace"))
+  axis(1, at = c(1,2,3), labels =  c("Dead", "Live", "Inter"))
   }
   
-  text(x = c(1,2,3), y = 0.9, labels = pvals[2:4])
+  # text(x = c(1,2,3), y = 0.9, labels = pvals[4:6])
   mtext(text = types[i], outer = FALSE, side = 3, line = 0.3)
   mtext(text = paste0("(", letters[i], ")"), outer = FALSE, side = 3, at = 0.5, line = 0.3)
-  mtext(text = "Electivity", outer = TRUE, side = 2, line = 1.5)
+  mtext(text = "Ivlev's E", outer = TRUE, side = 2, line = 1.5)
   
+
   
 }
 
 dev.off()
+
+
 # 
 # #-----------------------------------------------------------------------------------------------
 # # For whole study area
