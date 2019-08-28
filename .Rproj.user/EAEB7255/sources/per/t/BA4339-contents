@@ -26,6 +26,16 @@ species$unique_quad <- paste0(species$Plot, species$Transect, species$Meter)
 
 count(species, vars = c("Plot", "Transect"))
 
+
+#little test to look at species relationships with CWD
+species_aggregate <- aggregate(species[c("Cover")], by = list(species$Plot, species$Species), FUN = mean)
+names(species_aggregate)[c(1,2)] <- c("Plot", "Species")
+species_aggregate <- join(species_aggregate, plot_data[c("Plot", "cwd_normal_cum")], by = c("Plot"))
+
+plot(log(Cover) ~ cwd_normal_cum, data = species_aggregate[species_aggregate$Species == "ARTTRIV", ],
+     xlim = c(200, 450))
+
+
 #-----------------------------------------------------------------------
 # Calculate mean cover, cover by quadrat, cover by plot
 #-------------------------------------------------------------------

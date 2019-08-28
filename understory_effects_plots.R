@@ -209,7 +209,7 @@ par(oma = c(2,4,0,0), mar = c(3,1,1,1), family = "serif", bty = 'n')
 
 
 plot(NA,
-     ylim = c(0,.1),
+     ylim = c(0,.12),
      xlim = c(I(min(plot_data$Tree_cover)*100), I(max(plot_data$Tree_cover)*100)),
      xlab = "",
      ylab = "",
@@ -221,9 +221,14 @@ plot(NA,
      xaxt = 'n',
      yaxt = 'n')
 lines(inv.as(preds_tc_cg$predictions) ~ I(preds_tc_cg$predictor*100), lwd = 2, lty = 2, col = "#1b9e77")
-lines(inv.as(preds_tc_pg$predictions) ~ I(preds_tc_cg$predictor*100), lwd = 2, lty = 2, col = "#d95f02")
-lines(inv.as(preds_tc_pf$predictions) ~ I(preds_tc_cg$predictor*100), lwd = 2, lty = 1, col = "#7570b3")
-lines(inv.as(preds_tc_sh$predictions) ~ I(preds_tc_cg$predictor*100), lwd = 2, lty = 1, col = "#e7298a")
+points(I(preds_tc_cg$predictor[c(1,102)]*100), inv.as(preds_tc_cg$predictions[c(1,102)]), pch = 21, col = "#1b9e77", bg = "#1b9e77")
+lines(inv.as(preds_tc_pg$predictions) ~ I(preds_tc_cg$predictor*100), lwd = 2, lty = 2, col = "#000000")
+points(I(preds_tc_cg$predictor[c(1,102)]*100), inv.as(preds_tc_pg$predictions[c(1,102)]), pch = 22, col = "#000000", bg = "#000000")
+lines(inv.as(preds_tc_pf$predictions) ~ I(preds_tc_cg$predictor*100), lwd = 2, lty = 1, col = "#E69F00")
+points(I(preds_tc_cg$predictor[c(1,102)]*100), inv.as(preds_tc_pf$predictions[c(1,102)]), pch = 23, col = "#E69F00", bg = "#E69F00")
+lines(inv.as(preds_tc_sh$predictions) ~ I(preds_tc_cg$predictor*100), lwd = 2, lty = 1, col = "#56B4E9")
+points(I(preds_tc_cg$predictor[c(1,102)]*100), inv.as(preds_tc_sh$predictions[c(1,102)]), pch = 24, col = "#56B4E9", bg = "#56B4E9")
+
 axis(side = 1)
 axis(side = 2)
 mtext(text = "Tree cover (%)", side = 1, line = 2.2)
@@ -244,9 +249,14 @@ plot(NA,
      xaxt = 'n',
      yaxt = 'n')
 lines(inv.as(preds_awc_cg$predictions) ~ I(preds_awc_cg$predictor), lwd = 2, lty = 2, col = "#1b9e77")
-lines(inv.as(preds_awc_pg$predictions) ~ I(preds_awc_cg$predictor), lwd = 2, lty = 2, col = "#d95f02")
-lines(inv.as(preds_awc_pf$predictions) ~ I(preds_awc_cg$predictor), lwd = 2, lty = 2, col = "#7570b3")
-lines(inv.as(preds_awc_sh$predictions) ~ I(preds_awc_cg$predictor), lwd = 2, lty = 2, col = "#e7298a")
+points(I(preds_awc_cg$predictor[c(1,102)]), inv.as(preds_awc_cg$predictions[c(1,102)]), pch = 21, col = "#1b9e77", bg = "#1b9e77")
+lines(inv.as(preds_awc_pg$predictions) ~ I(preds_awc_cg$predictor), lwd = 2, lty = 2, col = "#000000")
+points(I(preds_awc_cg$predictor[c(1,102)]), inv.as(preds_awc_pg$predictions[c(1,102)]), pch = 21, col = "#000000", bg = "#000000")
+lines(inv.as(preds_awc_pf$predictions) ~ I(preds_awc_cg$predictor), lwd = 2, lty = 2, col = "#E69F00")
+points(I(preds_awc_cg$predictor[c(1,102)]), inv.as(preds_awc_pf$predictions[c(1,102)]), pch = 23, col = "#E69F00", bg = "#E69F00")
+lines(inv.as(preds_awc_sh$predictions) ~ I(preds_awc_cg$predictor), lwd = 2, lty = 2, col = "#56B4E9")
+points(I(preds_awc_cg$predictor[c(1,102)]), inv.as(preds_awc_sh$predictions[c(1,102)]), pch = 24, col = "#56B4E9", bg = "#56B4E9")
+
 axis(side = 1)
 axis(side = 2)
 mtext(text = "Soil AWC (%)", side = 1, line = 2.2)
@@ -255,10 +265,11 @@ mtext(text = "(b)", side = 1, line = -10, adj = 0.05)
 
 plot.new()
 legend("topright", legend = c("Cheatgrass", "Per. Grass", "Per. Forb", "Shrub"), 
-       lty = c(1), lwd = 2, cex = 1.3, col = c("#1b9e77", "#d95f02", "#7570b3", "#e7298a"))
+       lty = 1, pch = c(21,22,23,24), lwd = 2, cex = 1.3, col = c("#1b9e77", "#000000", "#E69F00", "#56B4E9"),
+       pt.bg = c("#1b9e77", "#000000", "#E69F00", "#56B4E9"))
 
 plot(NA,
-     ylim = c(0,.2),
+     ylim = c(0,.25),
      xlim = c(min(plot_data$Delta_pdc), max(plot_data$Delta_pdc)),
      xlab = "",
      ylab = "",
@@ -270,16 +281,21 @@ plot(NA,
      xaxt = 'n',
      yaxt = 'n')
 lines(inv.as(preds_pdc_10_cg$predictions) ~ I(preds_pdc_10_cg$predictor), lwd = 2, lty = 1, col = "#1b9e77")
-lines(inv.as(preds_pdc_10_pg$predictions) ~ I(preds_pdc_10_cg$predictor), lwd = 2, lty = 1, col = "#d95f02")
-lines(inv.as(preds_pdc_10_pf$predictions) ~ I(preds_pdc_10_cg$predictor), lwd = 2, lty = 2, col = "#7570b3")
-lines(inv.as(preds_pdc_10_sh$predictions) ~ I(preds_pdc_10_cg$predictor), lwd = 2, lty = 2, col = "#e7298a")
+points(I(preds_pdc_10_cg$predictor[c(1,102)]), inv.as(preds_pdc_10_cg$predictions[c(1,102)]), pch = 21, col = "#1b9e77", bg = "#1b9e77")
+lines(inv.as(preds_pdc_10_pg$predictions) ~ I(preds_pdc_10_cg$predictor), lwd = 2, lty = 1, col = "#000000")
+points(I(preds_pdc_10_cg$predictor[c(1,102)]), inv.as(preds_pdc_10_pg$predictions[c(1,102)]), pch = 21, col = "#000000", bg = "#000000")
+lines(inv.as(preds_pdc_10_pf$predictions) ~ I(preds_pdc_10_cg$predictor), lwd = 2, lty = 2, col = "#E69F00")
+points(I(preds_pdc_10_cg$predictor[c(1,102)]), inv.as(preds_pdc_10_pf$predictions[c(1,102)]), pch = 23, col = "#E69F00", bg = "#E69F00")
+lines(inv.as(preds_pdc_10_sh$predictions) ~ I(preds_pdc_10_cg$predictor), lwd = 2, lty = 2, col = "#56B4E9")
+points(I(preds_pdc_10_cg$predictor[c(1,102)]), inv.as(preds_pdc_10_sh$predictions[c(1,102)]), pch = 24, col = "#56B4E9", bg = "#56B4E9")
+
 axis(side = 1)
 axis(side = 2)
 text(x = -30, y = .18, labels = "10% CWD", cex = 1.3)
 mtext(text = "(c)", side = 1, line = -10, adj = 0.05)
 
 plot(NA,
-     ylim = c(0,.2),
+     ylim = c(0,.25),
      xlim = c(min(plot_data$Delta_pdc), max(plot_data$Delta_pdc)),
      xlab = "",
      ylab = "",
@@ -291,9 +307,14 @@ plot(NA,
      xaxt = 'n',
      yaxt = 'n')
 lines(inv.as(preds_pdc_50_cg$predictions) ~ I(preds_pdc_90_cg$predictor), lwd = 2, lty = 1, col = "#1b9e77")
-lines(inv.as(preds_pdc_50_pg$predictions) ~ I(preds_pdc_90_cg$predictor), lwd = 2, lty = 1, col = "#d95f02")
-lines(inv.as(preds_pdc_50_pf$predictions) ~ I(preds_pdc_90_cg$predictor), lwd = 2, lty = 2, col = "#7570b3")
-lines(inv.as(preds_pdc_50_sh$predictions) ~ I(preds_pdc_90_cg$predictor), lwd = 2, lty = 2, col = "#e7298a")
+points(I(preds_pdc_90_cg$predictor[c(1,102)]), inv.as(preds_pdc_50_cg$predictions[c(1,102)]), pch = 21, col = "#1b9e77", bg = "#1b9e77")
+lines(inv.as(preds_pdc_50_pg$predictions) ~ I(preds_pdc_90_cg$predictor), lwd = 2, lty = 1, col = "#000000")
+points(I(preds_pdc_50_cg$predictor[c(1,102)]), inv.as(preds_pdc_50_pg$predictions[c(1,102)]), pch = 21, col = "#000000", bg = "#000000")
+lines(inv.as(preds_pdc_50_pf$predictions) ~ I(preds_pdc_90_cg$predictor), lwd = 2, lty = 2, col = "#E69F00")
+points(I(preds_pdc_50_cg$predictor[c(1,102)]), inv.as(preds_pdc_50_pf$predictions[c(1,102)]), pch = 23, col = "#E69F00", bg = "#E69F00")
+lines(inv.as(preds_pdc_50_sh$predictions) ~ I(preds_pdc_90_cg$predictor), lwd = 2, lty = 2, col = "#56B4E9")
+points(I(preds_pdc_50_cg$predictor[c(1,102)]), inv.as(preds_pdc_50_sh$predictions[c(1,102)]), pch = 24, col = "#56B4E9", bg = "#56B4E9")
+
 axis(side = 1)
 axis(side = 2)
 text(x = -30, y = .18, labels = "50% CWD", cex = 1.3)
@@ -302,7 +323,7 @@ mtext(text = "(d)", side = 1, line = -10, adj = 0.05)
 
 
 plot(NA,
-     ylim = c(0,.2),
+     ylim = c(0,.25),
      xlim = c(min(plot_data$Delta_pdc), max(plot_data$Delta_pdc)),
      xlab = "",
      ylab = "",
@@ -314,9 +335,14 @@ plot(NA,
      xaxt = 'n',
      yaxt = 'n')
 lines(inv.as(preds_pdc_90_cg$predictions) ~ I(preds_pdc_90_cg$predictor), lwd = 2, lty = 1, col = "#1b9e77")
-lines(inv.as(preds_pdc_90_pg$predictions) ~ I(preds_pdc_90_cg$predictor), lwd = 2, lty = 1, col = "#d95f02")
-lines(inv.as(preds_pdc_90_pf$predictions) ~ I(preds_pdc_90_cg$predictor), lwd = 2, lty = 2, col = "#7570b3")
-lines(inv.as(preds_pdc_90_sh$predictions) ~ I(preds_pdc_90_cg$predictor), lwd = 2, lty = 2, col = "#e7298a")
+points(I(preds_pdc_90_cg$predictor[c(1,102)]), inv.as(preds_pdc_90_cg$predictions[c(1,102)]), pch = 21, col = "#1b9e77", bg = "#1b9e77")
+lines(inv.as(preds_pdc_90_pg$predictions) ~ I(preds_pdc_90_cg$predictor), lwd = 2, lty = 1, col = "#000000")
+points(I(preds_pdc_90_cg$predictor[c(1,102)]), inv.as(preds_pdc_90_pg$predictions[c(1,102)]), pch = 21, col = "#000000", bg = "#000000")
+lines(inv.as(preds_pdc_90_pf$predictions) ~ I(preds_pdc_90_cg$predictor), lwd = 2, lty = 2, col = "#E69F00")
+points(I(preds_pdc_90_cg$predictor[c(1,102)]), inv.as(preds_pdc_90_pf$predictions[c(1,102)]), pch = 23, col = "#E69F00", bg = "#E69F00")
+lines(inv.as(preds_pdc_90_sh$predictions) ~ I(preds_pdc_90_cg$predictor), lwd = 2, lty = 2, col = "#56B4E9")
+points(I(preds_pdc_90_cg$predictor[c(1,102)]), inv.as(preds_pdc_90_sh$predictions[c(1,102)]), pch = 24, col = "#56B4E9", bg = "#56B4E9")
+
 axis(side = 1)
 axis(side = 2)
 text(x = -30, y = .18, labels = "90% CWD", cex = 1.3)
