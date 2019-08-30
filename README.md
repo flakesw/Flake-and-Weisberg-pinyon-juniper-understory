@@ -33,4 +33,4 @@ A few folders:
 
 And some other junk associated with RStudio that isn't important.
 
-Hopefully these scripts are self-explanatory. Please 
+Hopefully these scripts are self-explanatory. Please contact me (sflake@gmail.com) with questions.
