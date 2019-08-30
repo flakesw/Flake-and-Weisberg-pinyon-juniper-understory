@@ -1,13 +1,17 @@
-##Understory data formatting
-##
+# Understory data formatting
+# author: Sam Flake
+# email: sflake@gmail.com
+# Description: this script takes all the raw data and outputs clean plot-level data
+# including predictor and response variables
+
 library("reshape2")
 library("plyr")
 library("effects")
 
-
+# import daubenmire cover data
 daub <- read.csv("./raw data/daub_cover.csv", stringsAsFactors = FALSE)
 
-#some data proofing
+# some data proofing
 daub <- daub[(daub$Transect %in% c("N", "E", "S", "W")), ]
 daub$Plot <- as.character(daub$Plot)
 daub[daub$Plot == "NPElectricEel", "Plot"] <- "NPELECTRICEEL"
@@ -19,19 +23,31 @@ daub$unique_quad <- paste0(daub$Plot, daub$Transect, daub$Meter)
 daub[daub$Cover.type == "Perennial forb ", "Cover.type"] <- "Perennial forb"
 daub[daub$Cover.type == "Shrub ", "Cover.type"] <- "Shrub"
   
+# 2015 tree data
 trees <- read.csv("./raw data/trees_updated_with_logs_041716.csv")
 tree_pdc <- read.csv("./raw data/all_trees_with_delta_and_ENN_041916.csv")
+
+# 2005 understory data, from Greenwood and Weisberg, 2008, 
+# Density-dependent tree mortality in pinyon-juniper woodlands, FEM
 greenwood_under <- read.csv("./raw data/Greenwood_Understory_Variables_SF_edits.csv")
+
+# 2015 line-intercept tree cover data
 tcover <- read.csv("./raw data/tree_and_shrub_cover_020815.csv")
   names(tcover)[3] <- "Shrub_cover_li"
+  
+# soil data
 source("./calculate_awc.R")
 soil <- calculate_awc(soil_raw = "./raw data/soils_missing_imputed_012016.csv")
+
+# climate data from PRISM
 clim <- read.csv("./raw data/ALL_climate_variables.csv")
   names(clim)[2] <- "Plot"
+  
+# some other derived variables
 other_vars <- read.csv("./raw data/all_vars_EXPORT.csv")
 
 
-#remaking data into plot average cover
+#remaking daubenmire data into plot average cover
 plot_daub_cover <- dcast(daub, Plot ~ Cover.type, value.var = "Midpoint.value", fun.aggregate = mean)
 names(plot_daub_cover) <- c("Plot", "Aforb", "Bg", "Cheatgrass", "Crust", "Gravel", "Litter",
                             "Agrass", "Pforb", "Pgrass", "Rock", "Shrub")
@@ -41,13 +57,14 @@ plot_daub_cover$All <- plot_daub_cover$Aforb + plot_daub_cover$Cheatgrass + plot
 #-------------------------------------------------------------
 #Create tree data plot-level
 
-#impute meanas for missing values
+#impute means for missing values
 for (i in which(sapply(trees, is.numeric))) {
   for (j in which(is.na(trees[, i]))) {
     trees[j, i] <- mean(trees[trees[, "Plot"] == trees[j, "Plot"], i],  na.rm = TRUE)
   }
 }
 
+# calculate stand structural variables
 plot_trees <- data.frame(Plot = character(102),
                          Live_ba = numeric(102),
                          Dead_ba = numeric(102),
@@ -71,22 +88,21 @@ for(i in (1:nrow(plot_trees))){
 
 #-----------------------------------------------
 # Plot-level cover for everything and also predictor variables
-
-#fill in any NAs
-
+# join all the data together by plot
 plot_data <- join(plot_daub_cover, plot_trees, by = c("Plot"))
 plot_data <- join(plot_data, clim[, c("Plot", "cwd_normal_cum")], by = "Plot")
 plot_data <- join(plot_data, soil[, c("Plot", "AWC")], by = "Plot")
 plot_data <- join(plot_data, tcover[, c("Plot", "Tree_cover", "Shrub_cover_li")], by = "Plot")
 plot_data <- join(plot_data, other_vars[, c("Plot", "Cluster", "Avg_depth")], by = "Plot")
 
-
+#fill in any NAs with the mean 
 for (i in which(sapply(plot_data, is.numeric))) {
   for (j in which(is.na(plot_data[, i]))) {
     plot_data[j, i] <- mean(plot_data[, i],  na.rm = TRUE)
   }
 }
 
+#rename a cluster
 levels(plot_data$Cluster) <- c(levels(plot_data$Cluster), "NPELECTRICEEL")
 plot_data[(plot_data$Plot %in% c("NPELECTRICEEL", "NPELECTRICEEL120",
                                  "NPELECTRICEEL240", "NPELECTRICEEL360")), "Cluster"] <- "NPELECTRICEEL"

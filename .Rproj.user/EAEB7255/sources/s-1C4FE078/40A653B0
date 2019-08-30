@@ -1,0 +1,22 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1565286118499.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "0",
+    "id" : "40A653B0",
+    "lastKnownWriteTime" : 1567113057,
+    "last_content_update" : 1567113057711,
+    "path" : "~/Research/MS Thesis/Understory/understory_effects_plots.R",
+    "project_path" : "understory_effects_plots.R",
+    "properties" : {
+        "cursorPosition" : "13,25",
+        "scrollLine" : "3"
+    },
+    "relative_order" : 7,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_source"
+}

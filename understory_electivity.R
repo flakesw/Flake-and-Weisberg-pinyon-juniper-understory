@@ -1,4 +1,12 @@
 ## Understory electivity
+# author: Sam Flake
+# email: sflake@gmail.com
+# Description: this script processes quadrat-level data to estimate electivity
+# and calculates a null distribution from Monte Carlo randomizations. Outputs 
+# an .rds file of the all the randomizations as well as Figure 5. Takes raw data
+# as inputs, and does not rely on the data_prep.R file. 
+
+#load libraries
 library(plyr)
 library(vioplot)
 library(reshape2)
@@ -6,6 +14,7 @@ library(multcompView)
 
 set.seed(16091315)
 
+# 2015 quadrat data
 daub <- read.csv("./Raw data/daub_cover.csv", stringsAsFactors = FALSE)
 
 #some data proofing
@@ -20,6 +29,7 @@ daub$unique_quad <- paste0(daub$Plot, daub$Transect, daub$Meter)
 daub[daub$Cover.type == "Perennial forb ", "Cover.type"] <- "Perennial forb"
 daub[daub$Cover.type == "Shrub ", "Cover.type"] <- "Shrub"
 
+# 2015 species-specific data, only used for summary statistics
 species<- read.csv("./raw data/spp_cover2.csv")
 species <- species[(species$Transect %in% c("N", "E", "S", "W")), ]
 species$unique_quad <- paste0(species$Plot, species$Transect, species$Meter)
@@ -231,12 +241,15 @@ names(elect_means) <- types
 
 system.time(#takes about a half hour
 
+# do the electivities!
+  
 for(type in types){
   
   plot_to_use_type <- subset(elect_results[[type]], !is.na(Dead))$Plot
   
   for(j in 1:nit){
     
+    #temporary storage for each iteration
     elect_rand <- data.frame(Plot = character(0),
                              Dead = numeric(0),
                              Live = numeric(0),
@@ -265,6 +278,7 @@ for(type in types){
       cov <- aggregate(daub_cov[, "prop_cov_ran"], by = list(daub_cov$ms), FUN = sum)
       prev <- table(daub_cov$ms)/20
       
+      #temporary df to store results from each plot
       elect <- data.frame(Plot = plot_use,
                           Dead = (cov[cov$Group.1 == "Dead",2] - prev[which(names(prev) == "Dead")]) / 
                             (cov[cov$Group.1 == "Dead", 2] + prev[which(names(prev) == "Dead")]),
@@ -276,9 +290,10 @@ for(type in types){
       elect$DI = (cov[cov$Group.1 == "Dead",2] - cov[cov$Group.1 == "Inter",2]) / (cov[cov$Group.1 == "Dead",2] + cov[cov$Group.1 == "Inter",2])
       elect$LI = (cov[cov$Group.1 == "Live",2] - cov[cov$Group.1 == "Inter",2]) / (cov[cov$Group.1 == "Live",2] + cov[cov$Group.1 == "Inter",2])
       
-      elect_rand <- rbind(elect_rand, elect)
+      elect_rand <- rbind(elect_rand, elect) #add data from plot to temporary df
     }
     
+    # add mean from electivity from this iteration to global df
     means <- apply(elect_rand[, c(2:7)], 2, FUN = function(x){mean(x, na.rm = TRUE)})
     elect_means[[type]][j, 1] <- j
     elect_means[[type]][j, 2:7] <- means
@@ -289,7 +304,7 @@ for(type in types){
 }
 )
 
-
+# initialize a dataframe to store extracted information from the monte carlo draws
 results_boots <- list()
 for(i in 1:ntypes){
   results_boots[[i]] <- data.frame(Dead = numeric(2),
@@ -320,7 +335,8 @@ results_boots[[i]][1, ] <- emp_mean
 results_boots[[i]][2, ] <- pvals
 }
 
-saveRDS(results_boots, paste0("./outputs/results_boots_", n_plots, "dead.rds"))
+#save and read results depending on what you need
+# saveRDS(results_boots, paste0("./outputs/results_boots_", n_plots, "dead.rds"))
 
 # results_boots <- readRDS("./outputs/results_boots_1dead.rds")
 
@@ -341,11 +357,13 @@ summary[, 2] <- rep(c("Empirical", "Difference", "p-val"), times = 4)
 summary[, 1] <- rep(c("Perennial grass", "Cheatgrass", "Perennial forb", "Shrub"), each = 3)
 names(summary) <- c("FT", "var", "Dead", "Live", "Inter", "D-L", "D-I", "L-I")
 write.csv(summary, "./outputs/electivity summary table.csv")
+
 #-----------------------------------------------------------------------------------------------
 # Plot of electivity for each FT
+# Figure 5
 #-----------------------------------------------------------------------------------------------
 
-png(filename="./outputs/electivity.png", 
+tiff(filename="./outputs/electivity.tiff", 
     type="cairo",
     units="in", 
     width = 4, 
@@ -377,13 +395,7 @@ for(i in 1:ntypes){
   means <- aggregate(melt_elect$value, by = list(melt_elect$variable), FUN = function(x){mean(x, na.rm = TRUE)})
   
   segments(x0 = c(0.85, 1.85, 2.85), y0 = means$x, x1 = c(1.15, 2.15, 3.15), lwd = 3)
-  
-  
-  # segments(x0 = 1, x1 = 2, y0 = melt_elect[melt_elect$variable == "Dead", "value"],
-  #          y1 = melt_elect[melt_elect$variable == "Live", "value"])
-  # 
-  # segments(x0 = 2, x1 = 3, y0 = melt_elect[melt_elect$variable == "Live", "value"],
-  #          y1 = melt_elect[melt_elect$variable == "Inter", "value"])
+
   
   if(i %in% c(1,2)){
     axis(1, at = c(1,2,3), labels = FALSE)
@@ -404,74 +416,3 @@ for(i in 1:ntypes){
 
 dev.off()
 
-
-# 
-# #-----------------------------------------------------------------------------------------------
-# # For whole study area
-# #-----------------------------------------------------------------------------------------------
-# all_merged <- join(daub, ms, by = "unique_quad", type = "inner")
-# 
-# daub$unique_quad
-# ms$unique_quad
-# 
-# 
-# all_plots_prev <- table(all_merged$ms)
-# all_plots_prev <- all_plots_prev / sum(all_plots_prev)
-# 
-# all_plots_cover <- aggregate(all_merged$Midpoint.value, by = list(all_merged$Cover.type, all_merged$ms), FUN = sum)
-# all_plots_cover <- all_plots_cover[all_plots_cover$Group.1 %in% c("Perennial grass", "Perennial forb ", "Shrub ", "Cheatgrass"), ]
-# 
-# for (i in 1:4){ # standardized cover so it adds to 1 for each functional type
-#   types <- c("Cheatgrass", "Perennial forb ", "Perennial grass", "Shrub ")
-#   all_plots_cover[all_plots_cover$Group.1 == types[i], "x"] <- all_plots_cover[all_plots_cover$Group.1 == types[i], "x"] / 
-#     sum(all_plots_cover[all_plots_cover$Group.1 == types[i], "x"])
-# }
-# 
-# 
-# 
-# all_plots_cover <- dcast(all_plots_cover, Group.1 ~ Group.2) #reshapes the table
-# 
-# all_elect <- data.frame(type = c("Cheatgrass", "Perennial forb", "Perennial grass", "Shrub"),
-#                         Dead = numeric(4),
-#                         Inter = numeric(4),
-#                         LiveInner = numeric(4),
-#                         LiveOuter = numeric(4),
-#                         Log = numeric(4))
-# 
-# for (i in 2:6){ #calculate electivity
-#   for (j in 1:4){
-#     all_elect[j, i] <- (all_plots_cover[j,i] - all_plots_prev[i - 1]) / (all_plots_cover[j,i] + all_plots_prev[i - 1])
-#   }
-# }
-# 
-# 
-# #--------------------------------------------------------------------
-# 
-# spp_merged <- join(spp_cov, ms, by = "unique_quad", type = "inner")
-# head(spp_merged)
-# 
-# 
-# spp_plots_prev <- table(spp_merged$ms)
-# spp_plots_prev <- spp_plots_prev / sum(spp_plots_prev)
-# 
-# spp_merged$poasec <- spp_merged$poasec / sum(spp_merged$poasec)
-# spp_merged$othergrass <- spp_merged$othergrass / sum(spp_merged$othergrass)
-# spp_merged$phlhoo <- spp_merged$phlhoo / sum(spp_merged$phlhoo)
-# spp_merged$otherforb <- spp_merged$otherforb / sum(spp_merged$otherforb)
-# 
-# spp_ag <- aggregate(spp_merged[, c("poasec", "othergrass", "phlhoo", "otherforb")], by = list(spp_merged$ms), FUN = sum)
-# 
-# 
-# spp_elect <- data.frame(type = c("POASEC", "Other Perr Grass", "PHLHOO", "Other Forb"),
-#                         Dead = numeric(4),
-#                         Inter = numeric(4),
-#                         LiveInner = numeric(4),
-#                         LiveOuter = numeric(4),
-#                         Log = numeric(4))
-# 
-# for (i in 1:5){ #calculate electivity
-#   for (j in 1:4){
-#     spp_elect[j, i+1] <- (unname(spp_ag[i,j + 1]) - unname(all_plots_prev[i])) / (unname(spp_ag[i,j + 1]) + unname(all_plots_prev[i]))
-#   }
-# }
-# 

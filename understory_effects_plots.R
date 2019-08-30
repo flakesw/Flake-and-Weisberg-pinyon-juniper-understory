@@ -1,6 +1,10 @@
-### Code to make effects plots
-
-# TODO check what models are fit, fit them in another script and import them to here
+# Plot-level understory analysis
+# author: Sam Flake
+# email: sflake@gmail.com
+# Description: this script generates Figures 2, 3, and 4. It relies on the effects
+# package or on code borrowed from that package. You'll have to run plot_level_understory.R
+# first, because this script needs a lot of global variables generated during that
+# analysis. Outputs some .tiff files. 
 
 library(visreg)
 library(car)
@@ -10,7 +14,12 @@ library(lme4)
 pardefault <- par(no.readonly = T)
 source('addTrans.R', echo=FALSE)
 
-### set some parameters to be use throughout
+# set some parameters to be use throughout
+# These models were generated in plot_level_understory.R, and that
+# script needs to be run first and these models saved in the global environment.
+# Some other global variables are also needed, like the raw plot_data data frame.
+# Bad practices but whatcha gonna do. 
+
 all <- all_plot
 cg <- cheatgrass_plot
 pg <- pgrass_plot
@@ -37,6 +46,7 @@ closest <- function(x, x0){
 
 #####################################################################
 # All understory vegetation, just two panels
+# Figure 3
 #####################################################################
 vars <- c("Tree_cover", "Delta_pdc")
 labels <- c("Tree cover", "Change in live canopy (%)")
@@ -89,6 +99,7 @@ dev.off()
 
 ####################################################################
 ## Multipanel figure to compare between functional types
+# Figure 4
 ####################################################################
 
 # Calculate residuals from predicted values and observed values
@@ -356,6 +367,7 @@ par(pardefault)
 
 ###################################################################################
 # Cheatgrass change over time
+# Figure 2
 ###################################################################################
 ## new data
 model <- cg_change_lm

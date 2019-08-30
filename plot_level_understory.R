@@ -1,3 +1,11 @@
+# Plot-level understory analysis
+# author: Sam Flake
+# email: sflake@gmail.com
+# Description: this script runs all of the plot-level analysis for the study,
+# not including the electivity analysis. It takes the processed data from
+# understory_data_prep.R and does statistical analysis, as well as creating 
+# Figure 1.
+
 library("MuMIn")
 library("lme4")
 library("car")
@@ -8,62 +16,24 @@ library("vegan")
 library("reshape2")
 library("plyr")
 
-setwd("C:/Users/Sam/Documents/Research/MS Thesis/Understory")
-
+# import data created by data prep script
 plot_data <- read.csv("./clean data/plot_data.csv")
+
+# understory variables from Greenwood and Weisberg 2008
 greenwood_under <- read.csv("./raw data/Greenwood_Understory_Variables_SF_edits.csv")
 
 
 #------------------------------------------------------------
 # Analysis
 #------------------------------------------------------------
-# 
-
-#exploration
-hist(asin(sqrt(plot_data$All/100)))
-hist(logit(plot_data$All/100 + min(plot_data[plot_data$All != 0, "All"])))
-hist(log(plot_data$All/100))
-plot((plot_data$All/100) ~ plot_data$Tree_cover)
-plot(asin(sqrt(plot_data$All/100)) ~ plot_data$Tree_cover)
-plot(asin(sqrt(plot_data$All/100)) ~ plot_data$Delta_pdc)
-plot(asin(sqrt(plot_data$All/100)) ~ plot_data$cwd_normal_cum)
-
-hist(asin(sqrt(plot_data$Cheatgrass/100)))
-hist(logit(plot_data$Cheatgrass/100 + min(plot_data[plot_data$Cheatgrass != 0, "Cheatgrass"])))
-hist(log(plot_data$Cheatgrass/100 + .01))
-
-nrow(plot_data[plot_data$Cheatgrass != 0, ])
-
-hist(asin(sqrt(plot_data$Pgrass/100)))
-hist(logit(plot_data$Pgrass/100))
-nrow(plot_data[plot_data$Pgrass != 0, ])
-
-hist(asin(sqrt(plot_data$Pforb/100)))
-hist(logit(plot_data$Pforb/100))
-nrow(plot_data[plot_data$Pforb != 0, ])
-
-hist(asin(sqrt(plot_data$Shrub_cover_li)))
-hist(logit(plot_data$Shrub_cover_li))
-nrow(plot_data[plot_data$Shrub_cover_li != 0, ])
-
-plot(plot_data$Cheatgrass ~ plot_data$cwd_normal_cum)
-
-
 #---------------------------------------------------------------
 #linear mixed effects models for functional groups at plot level
 #-------------------------------------------------------------------
 
-## all
+## all understory vegetation
 
 all_plot <- lmer(asin(sqrt(All/100)) ~ scale(Tree_cover) + scale(Delta_pdc)*scale(cwd_normal_cum) +
                           scale(AWC) + (1|Cluster), data = plot_data)
-
-# all_plot <- lmer(logit(All/100) ~ scale(Tree_cover) + scale(Delta_pdc)*scale(cwd_normal_cum) +
-#                           scale(AWC) + (1|Cluster), data = plot_data)
-# 
-# summary(lm(asin(sqrt(All/100)) ~ scale(Tree_cover) + scale(Delta_pdc)*scale(cwd_normal_cum) +
-#              scale(AWC), data = plot_data))
-
 summary(all_plot, ddf = "Kenward-Roger")
 r.squaredGLMM(all_plot)
 plot(allEffects(all_plot, partial.residuals = TRUE))
@@ -75,13 +45,6 @@ scatter.smooth(residuals(all_plot) ~ predict(all_plot))
 
 cheatgrass_plot <- lmer(asin(sqrt(Cheatgrass/100)) ~ scale(Tree_cover) + scale(Delta_pdc)*scale(cwd_normal_cum) +
                           scale(AWC) + (1|Cluster), data = plot_data)
-
-# cheatgrass_plot <- lmer(logit(Cheatgrass/100) ~ scale(Tree_cover) + scale(Delta_pdc)*scale(cwd_normal_cum) +
-                          # scale(AWC) + (1|Cluster), data = plot_data)
-
-summary(lm(asin(sqrt(Cheatgrass/100)) ~ scale(Tree_cover) + scale(Delta_pdc)*scale(cwd_normal_cum) +
-             scale(AWC), data = plot_data))
-
 summary(cheatgrass_plot, ddf = "Kenward-Roger")
 r.squaredGLMM(cheatgrass_plot)
 plot(allEffects(cheatgrass_plot, partial.residuals = TRUE))
@@ -89,16 +52,10 @@ plot(cheatgrass_plot)
 AICc(cheatgrass_plot)
 scatter.smooth(residuals(cheatgrass_plot) ~ predict(cheatgrass_plot))
 
-leveneTest(residuals(cheatgrass_plot) ~ plot_data$Cheatgrass)
-
 ## Perr grass
 
 pgrass_plot <- lmer(asin(sqrt(Pgrass/100)) ~ scale(Tree_cover) + scale(Delta_pdc)*scale(cwd_normal_cum) +
                       scale(AWC) + (1|Cluster), data = plot_data)
-
-summary(lm(asin(sqrt(Pgrass/100)) ~ scale(Tree_cover) + scale(Delta_pdc)*scale(cwd_normal_cum) +
-             scale(AWC), data = plot_data))
-
 summary(pgrass_plot, ddf = "Kenward-Roger")
 r.squaredGLMM(pgrass_plot)
 plot(allEffects(pgrass_plot, partial.residuals = TRUE))
@@ -108,8 +65,6 @@ plot(pgrass_plot)
 
 pforb_plot <- lmer(asin(sqrt(Pforb/100)) ~ scale(Tree_cover) + scale(Delta_pdc)*scale(cwd_normal_cum) +
                      scale(AWC) + (1|Cluster), data = plot_data)
-
-
 summary(pforb_plot, ddf = "Kenward-Roger")
 r.squaredGLMM(pforb_plot)
 plot(allEffects(pforb_plot, partial.residuals = TRUE))
@@ -121,23 +76,11 @@ plot(pforb_plot)
 ## Shrubs
 shrub_plot <- lmer(asin(sqrt(Shrub_cover_li)) ~ scale(Tree_cover) + scale(Delta_pdc)*scale(cwd_normal_cum) +
                      scale(AWC) + (1|Cluster), data = plot_data)
-# shrub_plot <- lmer(log(Shrub_cover_li+.01) ~ scale(Tree_cover) + scale(Delta_pdc)*scale(cwd_normal_cum) +
-#                      scale(AWC) + (1|Cluster), data = plot_data)
-
 summary(shrub_plot, ddf = "Kenward-Roger")
 r.squaredGLMM(shrub_plot)
 plot(allEffects(shrub_plot, partial.residuals = TRUE))
 plot(inv.as(predict(shrub_plot)) ~ I(plot_data$Shrub_cover_li))
 abline(0,1)
-plot(shrub_plot)
-
-
-### Plot regression coefficients
-library(coefplot2)
-coefplot2(pgrass_plot)
-coefplot2(cheatgrass_plot, add = TRUE, spacing = 10)
-
-
 
 #-----------------------------------------------
 # Comparison between 2005 and 2015 samples
@@ -221,6 +164,7 @@ summary(s_change_lm)
 
 ######################
 # Plot of comparisons between 2005 and 2015
+# Figure 1
 ######################
 opar <- par(no.readonly = TRUE)
 
@@ -306,50 +250,3 @@ mtext("2015 Cover (%)", side = 2, outer = TRUE)
 dev.off()
 
 par(opar)
-
-# 
-# #----------------------------------------
-# # Ordination analysis
-# #----------------------------------------
-# raw_cover <- read.csv("./Raw data/spp_cover2.csv") #spp_cover2 has unknowns filled with "unknown"
-# raw_cover <- raw_cover[raw_cover$Transect %in% c("E", "N", "S", "W"), ] #take out the "bonus" quadrats
-# 
-# spp_summary <- read.csv("./Raw data/species_summary.csv")
-# spp_priority <- spp_summary[order(spp_summary[, "x"], decreasing = TRUE), ]
-# 
-# species_list <- unique(raw_cover$Species)
-# plot_list <- unique(raw_cover$Plot)[order(unique(raw_cover$Plot))]
-# 
-# spp_matrix <- matrix(ncol = length(species_list), nrow = length(plot_list))
-# row.names(spp_matrix) <- plot_list
-# colnames(spp_matrix) <- species_list
-# 
-# env_data <- plot_data[, c("cwd_normal_cum", "Delta_pdc", "AWC", "Live_ba", 
-#                           "Dead_ba", "Avg_depth", "Elev", "Slope", "Swness", 
-#                           "tmean", "ppt")]
-# 
-# 
-# for(i in 1:nrow(spp_matrix)){
-#   for(j in 1:ncol(spp_matrix)){
-#     
-#     present <- species_list[j] %in% raw_cover[raw_cover$Plot == plot_list[i], "Species"]
-#     if(present){
-#       plot_cover <- raw_cover[raw_cover$Plot == plot_list[i] & raw_cover$Species == species_list[j], ]
-#       spp_matrix[i, j] <- sum(plot_cover$Cover) / 20 / 100
-#       } else{
-#         spp_matrix[i, j] <- 0
-#     }
-#     
-#     
-#   }
-# }
-# 
-# 
-# nmds_test <- metaMDS(spp_matrix, try = 50)
-# nmds_test
-# plot(nmds_test, display = "species")
-# # text(nmds_test, display = "species")
-# orditorp(nmds_test, display = "species", priority = spp_priority$Group.1,
-#          col = "forestgreen", pch = 2, cex = 1, air = 0.3)
-# 
-# plot(envfit(nmds_test, env_data, labels = list(vectors = names(env_data))))
