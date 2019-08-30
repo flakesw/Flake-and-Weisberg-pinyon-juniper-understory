@@ -7,6 +7,14 @@ These data and scripts are free to use and modify for any non-commercial purpose
 
 This project contains raw data and analysis scripts for work done as part of my master's thesis at the University of Nevada, Reno (Flake, 2016). The data were collected primarily in the summer of 2015 across central Nevada (contact me or Peter Weisberg at pweisberg@cabnr.unr.edu if you need additional data or plot location data). The project was supported by USDA NIFA, Hatch project 1003021. The data files are documented in a separate readme in the raw data folder. 
 
+For details on methodology, see the following sources:
+Flake, S.W. and P.J. Weisberg. Submitted. Drought-induced tree mortality alters understory community composition and facilitates cheatgrass invasion in pinyon-juniper woodlands. 
+Flake, S. W. 2016. Stand dynamics during drought: Responses of adult trees, tree regeneration, and understory vegetation to multiyear drought in pinyon-juniper woodlands. University of Nevada, Reno.
+Flake, S. W., and P. J. Weisberg. 2019. Fine-scale stand structure mediates drought-induced tree mortality in pinyon–juniper woodlands. Ecological Applications 29:e01831.
+Greenwood, D. 2006. Landscape analysis of tree mortality and pinyon-juniper woodland structure in the Great Basin. University of Nevada, Reno.
+Greenwood, D. L., and P. J. Weisberg. 2008. Density-dependent tree mortality in pinyon-juniper woodlands. Forest Ecology and Management 255:2129–2137.
+
+
 The project contains:
 
 understory_data_prep.R -- this script takes the raw data (from the /raw data folder) and outputs processed data (to the /Clean data folder). 
