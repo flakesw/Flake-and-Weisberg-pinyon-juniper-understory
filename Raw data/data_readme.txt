@@ -1,12 +1,26 @@
-The raw data for the project contains, generally, understory measurements contained in Understory_update_110418.xlsx, the spreadsheets of which were split out into individual .csv files; two spreadsheets containing data on trees; climate and soil variables; and data from Greenwood and Weisberg (2008). The best information on methodologies is probably from two master's theses, Flake (2016) and Greenwood (2006). A lot of the data here is not used for the present analysis. 
+The raw data for the project contains, generally, understory measurements contained in Understory_update_110418.xlsx, the spreadsheets
+of which were split out into individual .csv files; two spreadsheets containing data on trees; climate and soil variables; and data from
+Greenwood and Weisberg (2008). The best information on methodologies is probably from two master's theses, Flake (2016) and Greenwood 
+(2006). A lot of the data here is not used for the present analysis. 
 
-The data were measured in 102 plots from 26 clusters, each of 4 plots. One cluster only had two plots sampled from it. Within each plot, we measured individual trees (Flake and Weisberg 2019) and understory vegetation. Understory vegetation was measured with 20 1-m2 quadats per plot, and shrubs were measured with the line-intercept method as well as within quadrats. Cover by individual species was measured in quadrats as well as by functional type (the analysis presented in the manuscript). The microsite was characterized for each quadrat (e.g., under tree, interspace, etc.). Plot IDs consist of several parts: the mountain range code (e.g. SS for Sulphur Spring; TOI for Toiyabe), an assigned cluster number (e.g. 533), and then a direction -- 120, 240, or 360 degrees from the central subplot. The central plot is named the same as the cluster (e.g. TOI533), and the other plots are named something like TOI533360. See Greenwood (2005) for more details. 
+The data were measured in 102 plots from 26 clusters, each of 4 plots. One cluster only had two plots sampled from it. Within each plot,
+we measured individual trees (Flake and Weisberg 2019) and understory vegetation. Understory vegetation was measured with 20 1-m2 
+quadats per plot, and shrubs were measured with the line-intercept method as well as within quadrats. Cover by individual species was
+measured in quadrats as well as by functional type (the analysis presented in the manuscript). The microsite was characterized for each
+quadrat (e.g., under tree, interspace, etc.). Plot IDs consist of several parts: the mountain range code (e.g. SS for Sulphur Spring;
+TOI for Toiyabe), an assigned cluster number (e.g. 533), and then a direction -- 120, 240, or 360 degrees from the central subplot. The
+central plot is named the same as the cluster (e.g. TOI533), and the other plots are named something like TOI533360. See Greenwood 
+(2005) for more details. 
 
 References:
-Flake, S. W. 2016. Stand dynamics during drought: Responses of adult trees, tree regeneration, and understory vegetation to multiyear drought in pinyon-juniper woodlands. University of Nevada, Reno.
-Flake, S. W., and P. J. Weisberg. 2019. Fine-scale stand structure mediates drought-induced tree mortality in pinyon–juniper woodlands. Ecological Applications 29:e01831.
-Greenwood, D. 2006. Landscape analysis of tree mortality and pinyon-juniper woodland structure in the Great Basin. University of Nevada, Reno.
-Greenwood, D. L., and P. J. Weisberg. 2008. Density-dependent tree mortality in pinyon-juniper woodlands. Forest Ecology and Management 255:2129–2137.
+Flake, S. W. 2016. Stand dynamics during drought: Responses of adult trees, tree regeneration, and understory vegetation to multiyear
+drought in pinyon-juniper woodlands. University of Nevada, Reno.
+Flake, S. W., and P. J. Weisberg. 2019. Fine-scale stand structure mediates drought-induced tree mortality in pinyon–juniper woodlands.
+Ecological Applications 29:e01831.
+Greenwood, D. 2006. Landscape analysis of tree mortality and pinyon-juniper woodland structure in the Great Basin. University of Nevada,
+Reno.
+Greenwood, D. L., and P. J. Weisberg. 2008. Density-dependent tree mortality in pinyon-juniper woodlands. Forest Ecology and Management
+255:2129–2137.
 
 
 
