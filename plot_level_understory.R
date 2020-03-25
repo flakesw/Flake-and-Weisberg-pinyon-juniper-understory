@@ -101,9 +101,9 @@ cor.test(compare$Cheatgrass - compare$Cheatgrass.Cover, compare$cwd_normal_cum, 
          alternative = "two.sided", exact = FALSE)
 
 #linear model of log change ~ delta pdc and cwd
-# compare <- compare[-10, ] #outlier to remove?
+compare <- compare[-10, ] #outlier to remove?
 
-cg_change_lm <- lm(I((Cheatgrass - Cheatgrass.Cover)/100) ~ Delta_pdc*cwd_normal_cum, data= compare)
+cg_change_lm <- lm(I((Cheatgrass - Cheatgrass.Cover)/100) ~ Delta_pdc + cwd_normal_cum, data= compare)
 
 summary(cg_change_lm)
 plot(cg_change_lm)
@@ -168,17 +168,18 @@ summary(s_change_lm)
 ######################
 opar <- par(no.readonly = TRUE)
 
-png(filename="change_in_cover.png", 
+tiff(filename="./outputs/Figure_1_change_in_cover.tif", 
     type="cairo",
     units="in", 
     width = 4, 
     height=4, 
     pointsize=12, 
-    res=160)
+    compression = "lzw", 
+    res=600)
 
 layout(matrix(c(1,2,3,4), nrow = 2, ncol = 2, byrow = TRUE))
 
-par(oma = c(2,2,0,0), family = "serif", bty = 'n')
+par(oma = c(2,2,0,0), bty = 'n')
 
 
 par(mar = c(2,2,2,1))

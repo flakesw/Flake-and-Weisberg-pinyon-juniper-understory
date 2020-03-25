@@ -8,6 +8,7 @@ library("reshape2")
 library("plyr")
 library("effects")
 
+
 # import daubenmire cover data
 daub <- read.csv("./raw data/daub_cover.csv", stringsAsFactors = FALSE)
 
@@ -46,13 +47,13 @@ clim <- read.csv("./raw data/ALL_climate_variables.csv")
 # some other derived variables
 other_vars <- read.csv("./raw data/all_vars_EXPORT.csv")
 
-
 #remaking daubenmire data into plot average cover
 plot_daub_cover <- dcast(daub, Plot ~ Cover.type, value.var = "Midpoint.value", fun.aggregate = mean)
 names(plot_daub_cover) <- c("Plot", "Aforb", "Bg", "Cheatgrass", "Crust", "Gravel", "Litter",
                             "Agrass", "Pforb", "Pgrass", "Rock", "Shrub")
 plot_daub_cover$All <- plot_daub_cover$Aforb + plot_daub_cover$Cheatgrass + plot_daub_cover$Agrass + plot_daub_cover$Pforb +
                       plot_daub_cover$Pgrass + plot_daub_cover$Shrub
+
 
 #-------------------------------------------------------------
 #Create tree data plot-level
@@ -94,6 +95,7 @@ plot_data <- join(plot_data, clim[, c("Plot", "cwd_normal_cum")], by = "Plot")
 plot_data <- join(plot_data, soil[, c("Plot", "AWC")], by = "Plot")
 plot_data <- join(plot_data, tcover[, c("Plot", "Tree_cover", "Shrub_cover_li")], by = "Plot")
 plot_data <- join(plot_data, other_vars[, c("Plot", "Cluster", "Avg_depth")], by = "Plot")
+plot_data <- join(plot_data, seedsap_agg, by = "Plot")
 
 #fill in any NAs with the mean 
 for (i in which(sapply(plot_data, is.numeric))) {

@@ -38,13 +38,13 @@ count(species, vars = c("Plot", "Transect"))
 
 
 #little test to look at species relationships with CWD
-species_aggregate <- aggregate(species[c("Cover")], by = list(species$Plot, species$Species), FUN = mean)
-names(species_aggregate)[c(1,2)] <- c("Plot", "Species")
-species_aggregate <- join(species_aggregate, plot_data[c("Plot", "cwd_normal_cum")], by = c("Plot"))
-
-plot(log(Cover) ~ cwd_normal_cum, data = species_aggregate[species_aggregate$Species == "ARTTRIV", ],
-     xlim = c(200, 450))
-
+# species_aggregate <- aggregate(species[c("Cover")], by = list(species$Plot, species$Species), FUN = mean)
+# names(species_aggregate)[c(1,2)] <- c("Plot", "Species")
+# species_aggregate <- join(species_aggregate, plot_data[c("Plot", "cwd_normal_cum")], by = c("Plot"))
+# 
+# plot(log(Cover) ~ cwd_normal_cum, data = species_aggregate[species_aggregate$Species == "ARTTRIV", ],
+#      xlim = c(200, 450))
+# 
 
 #-----------------------------------------------------------------------
 # Calculate mean cover, cover by quadrat, cover by plot
@@ -78,29 +78,29 @@ write.csv(spp_abund, "./outputs/species_summary.csv")
 
 ## generate cover data for different subsets
 n_quads_occ <- length(unique(species$unique_quad)) #number of quadrat-by-group records
-
-spp_cov <- data.frame(unique_quad = unique(species$unique_quad),
-                     poasec = numeric(n_quads_occ),
-                     othergrass = numeric(n_quads_occ),
-                     phlhoo = numeric(n_quads_occ),
-                     otherforb = numeric(n_quads_occ))
-
-
-for(i in 1:n_quads_occ){
-  spp_cov$poasec[i] <- ifelse(species[species$unique_quad == spp_cov$unique_quad[i], ]$Species == "POASEC",
-    species[species$unique_quad == spp_cov$unique_quad[i] & species$Species == "POASEC", ]$Cover, 0)
-  
-  spp_cov$othergrass[i] <- ifelse(species[species$unique_quad == spp_cov$unique_quad[i], ]$Species %in% c("PSESPI", "LEYCIN", "ELYELY", "STITHU"),
-                                   sum(species[species$unique_quad == spp_cov$unique_quad[i] 
-                                               & species$Species %in% c("PSESPI", "LEYCIN", "ELYELY", "STITHU"), ]$Cover), 0)
-  
-  spp_cov$phlhoo[i] <- ifelse(species[species$unique_quad == spp_cov$unique_quad[i], ]$Species == "PHLHOO",
-                              species[species$unique_quad == spp_cov$unique_quad[i] & species$Species == "PHLHOO", ]$Cover, 0)
-  
-  spp_cov$otherforb[i] <- ifelse(species[species$unique_quad == spp_cov$unique_quad[i], ]$Species %in% c("CREACA", "CREACU", "STEACA", "ERICAE", "LEPPUN", "ERIUMB", "AREACU","LESKIN","GALAPA","ASTPUR","BALSAG","CRYFLA","ERIMIC","MINKIN","ASTOOP","OPUPOL","ARAHOL","ANTDIM","BOEHOL"),
-                                  sum(species[species$unique_quad == spp_cov$unique_quad[i] 
-                                              & species$Species %in% c("CREACA", "CREACU", "STEACA", "ERICAE", "LEPPUN", "ERIUMB", "AREACU","LESKIN","GALAPA","ASTPUR","BALSAG","CRYFLA","ERIMIC","MINKIN","ASTOOP","OPUPOL","ARAHOL","ANTDIM","BOEHOL"), ]$Cover), 0)
-}
+# 
+# spp_cov <- data.frame(unique_quad = unique(species$unique_quad),
+#                      poasec = numeric(n_quads_occ),
+#                      othergrass = numeric(n_quads_occ),
+#                      phlhoo = numeric(n_quads_occ),
+#                      otherforb = numeric(n_quads_occ))
+# 
+# 
+# for(i in 1:n_quads_occ){
+#   spp_cov$poasec[i] <- ifelse(species[species$unique_quad == spp_cov$unique_quad[i], ]$Species == "POASEC",
+#     species[species$unique_quad == spp_cov$unique_quad[i] & species$Species == "POASEC", ]$Cover, 0)
+#   
+#   spp_cov$othergrass[i] <- ifelse(species[species$unique_quad == spp_cov$unique_quad[i], ]$Species %in% c("PSESPI", "LEYCIN", "ELYELY", "STITHU"),
+#                                    sum(species[species$unique_quad == spp_cov$unique_quad[i] 
+#                                                & species$Species %in% c("PSESPI", "LEYCIN", "ELYELY", "STITHU"), ]$Cover), 0)
+#   
+#   spp_cov$phlhoo[i] <- ifelse(species[species$unique_quad == spp_cov$unique_quad[i], ]$Species == "PHLHOO",
+#                               species[species$unique_quad == spp_cov$unique_quad[i] & species$Species == "PHLHOO", ]$Cover, 0)
+#   
+#   spp_cov$otherforb[i] <- ifelse(species[species$unique_quad == spp_cov$unique_quad[i], ]$Species %in% c("CREACA", "CREACU", "STEACA", "ERICAE", "LEPPUN", "ERIUMB", "AREACU","LESKIN","GALAPA","ASTPUR","BALSAG","CRYFLA","ERIMIC","MINKIN","ASTOOP","OPUPOL","ARAHOL","ANTDIM","BOEHOL"),
+#                                   sum(species[species$unique_quad == spp_cov$unique_quad[i] 
+#                                               & species$Species %in% c("CREACA", "CREACU", "STEACA", "ERICAE", "LEPPUN", "ERIUMB", "AREACU","LESKIN","GALAPA","ASTPUR","BALSAG","CRYFLA","ERIMIC","MINKIN","ASTOOP","OPUPOL","ARAHOL","ANTDIM","BOEHOL"), ]$Cover), 0)
+# }
                      
 #----------------------------------------------------------------------------
 
@@ -363,13 +363,14 @@ write.csv(summary, "./outputs/electivity summary table.csv")
 # Figure 5
 #-----------------------------------------------------------------------------------------------
 
-tiff(filename="./outputs/electivity.tiff", 
+tiff(filename="./outputs/Figure_5_electivity.tiff", 
     type="cairo",
     units="in", 
     width = 4, 
     height=4, 
     pointsize=10, 
-    res=600)
+    compression = "lzw", 
+    res=1000)
 
 par(mfrow = c(2,2),
     mar = c(2,1,1,2),

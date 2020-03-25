@@ -18,7 +18,7 @@ source('addTrans.R', echo=FALSE)
 # These models were generated in plot_level_understory.R, and that
 # script needs to be run first and these models saved in the global environment.
 # Some other global variables are also needed, like the raw plot_data data frame.
-# Bad practices but whatcha gonna do. 
+# Bad practices but I didn't think it was worth refactoring this thing. 
 
 all <- all_plot
 cg <- cheatgrass_plot
@@ -51,15 +51,16 @@ closest <- function(x, x0){
 vars <- c("Tree_cover", "Delta_pdc")
 labels <- c("Tree cover", "Change in live canopy (%)")
 
-tiff(filename="./outputs/all_understory_effects.tiff", 
+tiff(filename="./outputs/Figure_3_all_understory_effects.tiff", 
      type="cairo",
      units="in", 
      width = 3, 
      height=5, 
-     pointsize=12, 
+     pointsize=12,
+     compression = "lzw", 
      res=600)
 
-par(mfrow = c(2,1), oma = c(2,3,0,0), mar = c(3,1,1,1), family = "serif", bty = 'n')
+par(mfrow = c(2,1), oma = c(2,3,0,0), mar = c(3,1,1,1), bty = 'n')
 
 for(i in c(1:2)){
   var <- vars[i]
@@ -75,22 +76,22 @@ for(i in c(1:2)){
   
   plot(NA,
        xlim = c(min(x), max(x)),
-       ylim = c(0, 0.5),
+       ylim = c(0, 50),
        xlab = "",
        ylab = "")
   
-  points(resids ~ eff$x.all[[var]], 
+  points(resids*100 ~ eff$x.all[[var]], 
          pch = 21, 
          bg='grey60',
          col = 'grey30')
   
-  lines(inv.as(y) ~ x, lwd = 2)
-  lines(inv.as(eff$lower) ~ x)
-  lines(inv.as(eff$upper) ~ x)
-  polygon(c(x, rev(x)), c(inv.as(eff$upper), rev(inv.as(eff$lower))),
+  lines(inv.as(y)*100 ~ x, lwd = 2)
+  lines(inv.as(eff$lower)*100 ~ x)
+  lines(inv.as(eff$upper)*100 ~ x)
+  polygon(c(x, rev(x)), c(inv.as(eff$upper)*100, rev(inv.as(eff$lower))*100),
           col = addTrans("#68EBC4",30), border = NA)
 
-  mtext(side = 2, text = "Understory cover", outer = TRUE, line = 1.7)
+  mtext(side = 2, text = "Understory cover (%)", outer = TRUE, line = 1.7)
   mtext(side = 1, text = labels[i], line = 2)
 }
 
@@ -201,22 +202,22 @@ preds_pdc_90_sh <- calculate_preds(sh, C_pdc_90, "Delta_pdc")
 # create plots of log-partial-residuals y-axis versus natural x-scale
 # this is also dumb and I could do it in a loop except I don't want to 
 # put all the predictions in a list
-setwd("C:/Users/Sam/Documents/Research/MS Thesis/Understory/outputs") #where the plots go
 
 opar <- par(no.readonly = TRUE)
 par(opar)
 
-tiff(filename="understory_effects.tiff", 
+tiff(filename="./outputs/Figure_4_understory_effects.tiff", 
     type="cairo",
     units="in", 
     width = 7, 
     height=5, 
-    pointsize=15, 
+    pointsize=15,
+    compression = "lzw",
     res=600)
 
 layout(matrix(c(1,2,3,4,5,6), nrow = 2, ncol = 3, byrow = TRUE))
 
-par(oma = c(2,4,0,0), mar = c(3,1,1,1), family = "serif", bty = 'n')
+par(oma = c(2,4,0,0), mar = c(3,1,1,1), bty = 'n')
 
 
 plot(NA,
@@ -241,7 +242,7 @@ lines(inv.as(preds_tc_sh$predictions) ~ I(preds_tc_cg$predictor*100), lwd = 2, l
 points(I(preds_tc_cg$predictor[c(1,102)]*100), inv.as(preds_tc_sh$predictions[c(1,102)]), pch = 24, col = "#56B4E9", bg = "#56B4E9")
 
 axis(side = 1)
-axis(side = 2)
+axis(side = 2, at = axTicks(2), labels = axTicks(2)*100)
 mtext(text = "Tree cover (%)", side = 1, line = 2.2)
 mtext(text = "Understory cover (%)", side = 2, outer = TRUE, line = 2, cex = 1)
 mtext(text = "(a)", side = 1, line = -10, adj = 0.05)
@@ -269,7 +270,7 @@ lines(inv.as(preds_awc_sh$predictions) ~ I(preds_awc_cg$predictor), lwd = 2, lty
 points(I(preds_awc_cg$predictor[c(1,102)]), inv.as(preds_awc_sh$predictions[c(1,102)]), pch = 24, col = "#56B4E9", bg = "#56B4E9")
 
 axis(side = 1)
-axis(side = 2)
+axis(side = 2, at = axTicks(2), labels = axTicks(2)*100)
 mtext(text = "Soil AWC (%)", side = 1, line = 2.2)
 mtext(text = "(b)", side = 1, line = -10, adj = 0.05)
 
@@ -301,7 +302,7 @@ lines(inv.as(preds_pdc_10_sh$predictions) ~ I(preds_pdc_10_cg$predictor), lwd = 
 points(I(preds_pdc_10_cg$predictor[c(1,102)]), inv.as(preds_pdc_10_sh$predictions[c(1,102)]), pch = 24, col = "#56B4E9", bg = "#56B4E9")
 
 axis(side = 1)
-axis(side = 2)
+axis(side = 2, at = axTicks(2), labels = axTicks(2)*100)
 text(x = -30, y = .18, labels = "10% CWD", cex = 1.3)
 mtext(text = "(c)", side = 1, line = -10, adj = 0.05)
 
@@ -327,7 +328,7 @@ lines(inv.as(preds_pdc_50_sh$predictions) ~ I(preds_pdc_90_cg$predictor), lwd = 
 points(I(preds_pdc_50_cg$predictor[c(1,102)]), inv.as(preds_pdc_50_sh$predictions[c(1,102)]), pch = 24, col = "#56B4E9", bg = "#56B4E9")
 
 axis(side = 1)
-axis(side = 2)
+axis(side = 2, at = axTicks(2), labels = axTicks(2)*100)
 text(x = -30, y = .18, labels = "50% CWD", cex = 1.3)
 mtext(text = "Change in live canopy (%)", side = 1, line = 2.2)
 mtext(text = "(d)", side = 1, line = -10, adj = 0.05)
@@ -355,7 +356,7 @@ lines(inv.as(preds_pdc_90_sh$predictions) ~ I(preds_pdc_90_cg$predictor), lwd = 
 points(I(preds_pdc_90_cg$predictor[c(1,102)]), inv.as(preds_pdc_90_sh$predictions[c(1,102)]), pch = 24, col = "#56B4E9", bg = "#56B4E9")
 
 axis(side = 1)
-axis(side = 2)
+axis(side = 2, at = axTicks(2), labels = axTicks(2)*100)
 text(x = -30, y = .18, labels = "90% CWD", cex = 1.3)
 mtext(text = "(e)", side = 1, line = -10, adj = 0.05)
 
@@ -434,22 +435,23 @@ cg_change <- list(cg_change_10, cg_change_50, cg_change_90)
 
 
 #generate the figure
-tiff(filename="./outputs/cheatgrass_change_effect.tif", 
+tiff(filename="./outputs/Figure_2_cheatgrass_change_effect_no_outlier.tif", 
     type="cairo",
     units="in", 
     width = 4, 
     height=3, 
-    pointsize=12, 
+    pointsize=12,
+    compression = "lzw", 
     res=600)
 
 layout(matrix(c(1,2,3), nrow=1, ncol=3, byrow = TRUE))
-par(mar = c(0,1,0,0), oma = c(6,4,2,2), family = "serif", bty = 'n')
+par(mar = c(0,1,0,0), oma = c(6,4,2,2), bty = 'n')
 
 panel_labels <- c("10% CWD", "50% CWD", "90% CWD")
 
 for(i in c(1:3)){
   plot(NA,
-       ylim = c(-0.1, 0.15),
+       ylim = c(-0.07, 0.07),
        xlim = c(-70, 10 ),
        xlab = "",
        ylab = "",
@@ -485,16 +487,16 @@ for(i in c(1:3)){
          cex = 1.5)
   
  if(i == 1){
-   axis(side = 2, at = c(-0.05, 0.05), labels = FALSE, tcl = -0.25)
-   axis(side = 2, at = c(-0.1, 0, 0.1))
+   axis(side = 2, at = axTicks(2), labels = axTicks(2)*100)
+   # axis(side = 2, at = c(-0.1, 0, 0.1), labels = c(-10, 0, 10))
    }
  axis(side = 1, at = c(-60, -30, 0), labels = TRUE)
  axis(side = 1, at = c(-50, -40, -20, -10, 10), labels = FALSE, tcl = -.25)
- text(x = -30, y = .11, labels = panel_labels[i], cex = 1.2)
+ text(x = -30, y = .07, labels = panel_labels[i], cex = 1.2)
 
 }
    
   mtext(side = 1, text = "Change in live canopy (%)", outer = TRUE, line = 2.6)
-  mtext(side = 2, text = "Change in cheatgrass cover", outer = TRUE, line = 2.3)
+  mtext(side = 2, text = "Change in cheatgrass cover (%)", outer = TRUE, line = 2.3)
 
 dev.off()
