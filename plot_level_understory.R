@@ -18,7 +18,7 @@ library("plyr")
 
 # import data created by data prep script
 plot_data <- read.csv("./clean data/plot_data.csv")
-plot_data$Delta_tc <- plot_data$Tree_cover - plot_data$Total_cover
+plot_data$Delta_tc <- (plot_data$Tree_cover*100 - plot_data$Total_cover)
 plot_data$Delta_ba <- plot_data$Live_ba - plot_data$Live_ba_2005
 plot_data <- plot_data[plot_data$Cluster != "NPELECTRICEEL", ]
 
@@ -267,54 +267,78 @@ par(opar)
 
 ## all understory vegetation
 
-all_plot <- lmer(asin(sqrt(All/100)) ~ scale(Tree_cover) + scale(Delta_tc)*scale(cwd_normal_cum) +
+all_plot_tc <- lmer(asin(sqrt(All/100)) ~ scale(Tree_cover) + scale(Delta_tc)*scale(cwd_normal_cum) +
                    scale(AWC) + (1|Cluster), data = plot_data)
-summary(all_plot, ddf = "Kenward-Roger")
-r.squaredGLMM(all_plot)
-plot(allEffects(all_plot, partial.residuals = TRUE))
-plot(all_plot)
-AICc(all_plot)
-scatter.smooth(residuals(all_plot) ~ predict(all_plot))
+
+
+all_plot_noscale_tc <- lmer(asin(sqrt(All/100)) ~ Tree_cover + Delta_tc*cwd_normal_cum +
+                   AWC + (1|Cluster), data = plot_data)
+
+summary(all_plot_tc, ddf = "Kenward-Roger")
+r.squaredGLMM(all_plot_tc)
+plot(allEffects(all_plot_tc, partial.residuals = TRUE))
+plot(all_plot_tc)
+AICc(all_plot_tc)
+scatter.smooth(residuals(all_plot_tc) ~ predict(all_plot_tc))
 
 ## Cheatgrass
 
-cheatgrass_plot <- lmer(asin(sqrt(Cheatgrass/100)) ~ scale(Tree_cover) + scale(Delta_tc)*scale(cwd_normal_cum) +
+cheatgrass_plot_tc <- lmer(asin(sqrt(Cheatgrass/100)) ~ scale(Tree_cover) + scale(Delta_tc) * scale(cwd_normal_cum) +
                           scale(AWC) + (1|Cluster), data = plot_data)
-summary(cheatgrass_plot, ddf = "Kenward-Roger")
-r.squaredGLMM(cheatgrass_plot)
-plot(allEffects(cheatgrass_plot, partial.residuals = TRUE))
-plot(cheatgrass_plot)
-AICc(cheatgrass_plot)
-scatter.smooth(residuals(cheatgrass_plot) ~ predict(cheatgrass_plot))
+
+cheatgrass_plot_noscale_tc <- lmer(asin(sqrt(Cheatgrass/100)) ~ Tree_cover + Delta_tc*cwd_normal_cum +
+                          AWC + (1|Cluster), data = plot_data)
+
+summary(cheatgrass_plot_tc, ddf = "Kenward-Roger")
+r.squaredGLMM(cheatgrass_plot_tc)
+plot(allEffects(cheatgrass_plot_noscale_tc, partial.residuals = TRUE))
+plot(cheatgrass_plot_tc)
+AICc(cheatgrass_plot_tc)
+scatter.smooth(residuals(cheatgrass_plot_tc) ~ predict(cheatgrass_plot_tc))
 
 ## Perr grass
 
-pgrass_plot <- lmer(asin(sqrt(Pgrass/100)) ~ scale(Tree_cover) + scale(Delta_tc)*scale(cwd_normal_cum) +
+pgrass_plot_tc <- lmer(asin(sqrt(Pgrass/100)) ~ scale(Tree_cover) + scale(Delta_tc)*scale(cwd_normal_cum) +
                       scale(AWC) + (1|Cluster), data = plot_data)
-summary(pgrass_plot, ddf = "Kenward-Roger")
-r.squaredGLMM(pgrass_plot)
-plot(allEffects(pgrass_plot, partial.residuals = TRUE))
-plot(pgrass_plot)
+
+pgrass_plot_noscale_tc <- lmer(asin(sqrt(Pgrass/100)) ~ Tree_cover + Delta_tc*cwd_normal_cum +
+                      AWC + (1|Cluster), data = plot_data)
+
+summary(pgrass_plot_tc, ddf = "Kenward-Roger")
+r.squaredGLMM(pgrass_plot_tc)
+plot(allEffects(pgrass_plot_tc, partial.residuals = TRUE))
+plot(pgrass_plot_tc)
+scatter.smooth(residuals(pgrass_plot_tc) ~ predict(pgrass_plot_tc))
+
 
 ## Perr forbs
 
-pforb_plot <- lmer(asin(sqrt(Pforb/100)) ~ scale(Tree_cover) + scale(Delta_tc)*scale(cwd_normal_cum) +
+pforb_plot_tc <- lmer(asin(sqrt(Pforb/100)) ~ scale(Tree_cover) + scale(Delta_tc)*scale(cwd_normal_cum) +
                      scale(AWC) + (1|Cluster), data = plot_data)
-summary(pforb_plot, ddf = "Kenward-Roger")
-r.squaredGLMM(pforb_plot)
-plot(allEffects(pforb_plot, partial.residuals = TRUE))
-plot(inv.as(predict(pforb_plot)) ~ I(plot_data$Pforb/100))
+pforb_plot_noscale_tc <- lmer(asin(sqrt(Pforb/100)) ~ Tree_cover + Delta_tc*cwd_normal_cum +
+                     AWC + (1|Cluster), data = plot_data)
+
+summary(pforb_plot_tc, ddf = "Kenward-Roger")
+r.squaredGLMM(pforb_plot_tc)
+plot(allEffects(pforb_plot_tc, partial.residuals = TRUE))
+plot(inv.as(predict(pforb_plot_tc)) ~ I(plot_data$Pforb/100))
 abline(0,1)
-plot(pforb_plot)
+plot(pforb_plot_tc)
+scatter.smooth(residuals(pforb_plot_tc) ~ predict(pforb_plot_tc))
 
 
 ## Shrubs
-shrub_plot <- lmer(asin(sqrt(Shrub_cover_li)) ~ scale(Tree_cover) + scale(Delta_tc)*scale(cwd_normal_cum) +
+shrub_plot_tc <- lmer(asin(sqrt(Shrub_cover_li)) ~ scale(Tree_cover) + scale(Delta_tc)*scale(cwd_normal_cum) +
                      scale(AWC) + (1|Cluster), data = plot_data)
-summary(shrub_plot, ddf = "Kenward-Roger")
-r.squaredGLMM(shrub_plot)
-plot(allEffects(shrub_plot, partial.residuals = TRUE))
-plot(inv.as(predict(shrub_plot)) ~ I(plot_data$Shrub_cover_li))
+
+shrub_plot_noscale_tc <- lmer(asin(sqrt(Shrub_cover_li)) ~ Tree_cover + Delta_tc*cwd_normal_cum +
+                     AWC + (1|Cluster), data = plot_data)
+
+
+summary(shrub_plot_tc, ddf = "Kenward-Roger")
+r.squaredGLMM(shrub_plot_tc)
+plot(allEffects(shrub_plot_tc, partial.residuals = TRUE))
+plot(inv.as(predict(shrub_plot_tc)) ~ I(plot_data$Shrub_cover_li))
 abline(0,1)
 
 #-----------------------------------------------
@@ -340,7 +364,7 @@ compare <- compare[-c(5, 10), ] #outlier to remove?
 
 cg_change_lm <- lm(I((Cheatgrass - Cheatgrass.Cover)/100) ~ Delta_tc*cwd_normal_cum, data= compare)
 cg_change_lm_no_outliers <- lm(I((Cheatgrass - Cheatgrass.Cover)/100) ~ 
-                                 Delta_tc*cwd_normal_cum, data= compare[-c(5,10), ])
+                                 Delta_tc + cwd_normal_cum, data= compare[-c(5,10), ])
 
 summary(cg_change_lm)
 plot(cg_change_lm)

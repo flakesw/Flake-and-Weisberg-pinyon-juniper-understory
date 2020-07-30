@@ -20,11 +20,11 @@ source('addTrans.R', echo=FALSE)
 # Some other global variables are also needed, like the raw plot_data data frame.
 # Bad practices but I didn't think it was worth refactoring this thing. 
 
-all <- all_plot
-cg <- cheatgrass_plot
-pg <- pgrass_plot
-pf <- pforb_plot
-sh <- shrub_plot
+all <- all_plot_noscale_tc
+cg <- cheatgrass_plot_noscale
+pg <- pgrass_plot_noscale
+pf <- pforb_plot_noscale
+sh <- shrub_plot_noscale
 
 # function to calculate standard errors for a given vcov matrix and row of x values, to get
 # point estimates of prediction error for a given prediction. See http://www.ats.ucla.edu/stat/r/faq/deltamethod.htm
@@ -49,7 +49,7 @@ closest <- function(x, x0){
 # Figure 3
 #####################################################################
 vars <- c("Tree_cover", "Delta_tc")
-labels <- c("Tree cover", "Change in live canopy (%)")
+labels <- c("Tree cover", "Change in tree cover (%)")
 
 tiff(filename="./outputs/Figure_3_all_understory_effects.tiff", 
      type="cairo",
@@ -65,7 +65,7 @@ par(mfrow = c(2,1), oma = c(2,3,0,0), mar = c(3,1,1,1), bty = 'n')
 for(i in c(1:2)){
   var <- vars[i]
   
-  eff <- Effect(all_plot, partial.residuals = TRUE, focal.predictors = var)
+  eff <- Effect(all_plot_tc, partial.residuals = TRUE, focal.predictors = var)
   
   y <- eff$fit
   x <- eff$x[[var]]
@@ -80,7 +80,7 @@ for(i in c(1:2)){
        xlab = "",
        ylab = "")
   
-  points(resids*100 ~ eff$x.all[[var]], 
+  points(resids*100 ~ x.fit, 
          pch = 21, 
          bg='grey60',
          col = 'grey30')
@@ -169,7 +169,7 @@ calculate_preds <- function(model, C, predictor){
 
 # Use the function to get all the stuff we need 
 # (predictions, partial residuals, and SEs)
-# this is the dumbest way to do this but I don't want to rewrite it
+# this is the dumbest way to do this but I don't want to refactor it
 preds_tc_cg <- calculate_preds(cg, C_tc, "Tree_cover")
 preds_tc_pg <- calculate_preds(pg, C_tc, "Tree_cover")
 preds_tc_pf <- calculate_preds(pf, C_tc, "Tree_cover")
@@ -194,10 +194,6 @@ preds_tc_90_cg <- calculate_preds(cg, C_tc_90, "Delta_tc")
 preds_tc_90_pg <- calculate_preds(pg, C_tc_90, "Delta_tc")
 preds_tc_90_pf <- calculate_preds(pf, C_tc_90, "Delta_tc")
 preds_tc_90_sh <- calculate_preds(sh, C_tc_90, "Delta_tc")
-
-# create plots of log-partial-residuals y-axis versus natural x-scale
-# this is also dumb and I could do it in a loop except I don't want to 
-# put all the predictions in a list
 
 opar <- par(no.readonly = TRUE)
 par(opar)
@@ -516,7 +512,7 @@ dev.off()
 library("effects")
 # Perennial grasses
 
-tiff(filename="./outputs/Supplementary figure effects pgrass.tiff", 
+tiff(filename="./outputs/Supplementary figure effects cgrass.tiff", 
      type="cairo",
      units="in", 
      width = 7, 
@@ -525,135 +521,141 @@ tiff(filename="./outputs/Supplementary figure effects pgrass.tiff",
      compression = "lzw",
      res=600)
 
-model <- cg
-
-eff <- Effect(focal.predictors = c("Tree_cover"), 
-              mod = cg, xlevels = 100, partial.residuals = TRUE)
-
-
-eff2 <- Effect(focal.predictors = c("PC1"), 
-               mod = mod3, xlevels = 100, transformation = list(link = log, inverse = exp))
-
-dat <- data.frame(y = exp(eff$fit),
-                  lower = exp(eff$lower),
-                  upper = exp(eff$upper),
-                  soil = eff[["x"]][["PC1"]])
-
+#graphical params
 layout(matrix(c(1,2,3,4,5,6), nrow = 2, ncol = 3, byrow = TRUE))
 
 par(oma = c(2,4,0,0), mar = c(3,1,1,1), bty = 'n')
 
 
-plot(NA,
-     ylim = c(0,.02),
-     xlim = c(I(min(plot_data$Tree_cover)*100), I(max(plot_data$Tree_cover)*100)),
-     xlab = "",
-     ylab = "",
-     bg='grey60',
-     col = 'grey30',
-     pch = 21,
-     cex.lab = 1.5,
-     bty = 'n',
-     xaxt = 'n',
-     yaxt = 'n')
+panel_labels <- c("10% CWD", "50% CWD", "90% CWD")
+k <- 1
 
-lines(inv.as(preds_tc_cg$predictions) ~ I(preds_tc_cg$predictor*100), lwd = 2, lty = 2, col = "#1b9e77")
-points(I(preds_tc_cg$predictor[c(1,200)]*100), inv.as(preds_tc_cg$predictions[c(1,200)]), pch = 21, col = "#1b9e77", bg = "#1b9e77")
+#which  model to use?
+model <- pgrass_plot_noscale
 
-axis(side = 1)
-axis(side = 2, at = axTicks(2), labels = axTicks(2)*100)
-mtext(text = "Tree cover (%)", side = 1, line = 2.2)
-mtext(text = "Understory cover (%)", side = 2, outer = TRUE, line = 2, cex = 1)
-mtext(text = "(a)", side = 1, line = -10, adj = 0.05)
+let <- letters
 
-plot(NA,
-     ylim = c(0,.02),
-     xlim = c(min(plot_data$AWC), max(plot_data$AWC)),
-     xlab = "",
-     ylab = "",
-     bg='grey60',
-     col = 'grey30',
-     pch = 21,
-     cex.lab = 1.5,
-     bty = 'n',
-     xaxt = 'n',
-     yaxt = 'n')
+vars <- c("Tree_cover", "AWC", "Delta_tc", "Delta_tc", "Delta_tc")
+x_labels <- c("Tree cover (%)", "Soil AWC (%)", "Change in live canopy (%)")
 
-lines(inv.as(preds_awc_cg$predictions) ~ I(preds_awc_cg$predictor), lwd = 2, lty = 2, col = "#1b9e77")
-points(I(preds_awc_cg$predictor[c(1,200)]), inv.as(preds_awc_cg$predictions[c(1,200)]), pch = 21, col = "#1b9e77", bg = "#1b9e77")
+for(i in 1:2){
 
-axis(side = 1)
-axis(side = 2, at = axTicks(2), labels = axTicks(2)*100)
-mtext(text = "Soil AWC (%)", side = 1, line = 2.2)
-mtext(text = "(b)", side = 1, line = -10, adj = 0.05)
+  var <- vars[i]
+  
+  eff <- Effect(model, partial.residuals = TRUE, focal.predictors = var)
+  
+  line_data <- data.frame(y = inv.as(eff$fit),
+                    lower = inv.as(eff$lower),
+                    upper = inv.as(eff$upper),
+                    x = eff[["x"]][[var]]
+                    )
+  
+  x_new <- eff[["x"]][[var]]
+  x_orig <- eff[["x.all"]][[var]]
+  
+  y_trans <- eff$fit
+  
+  fitted <- y_trans[closest(x_orig, x_new)] #match original data to the nearest new x value, so
+  # that we can find the closest fitted value and add the residual for that 
+  
+  p_resids <- inv.as(eff$residuals + fitted)
+  # eff[["data"]][[var]]
+  
+  points_data <- data.frame(x = x_orig,
+                            y = p_resids)
+  
+  plot(NA,
+       ylim = c(min(c(y, points_data$y)), max(c(y, points_data$y))),
+       xlim = c(min(x_new), max(x_new)),
+       xlab = "",
+       ylab = "",
+       bg='grey60',
+       col = 'grey30',
+       pch = 21,
+       cex.lab = 1.5,
+       bty = 'n',
+       xaxt = 'n',
+       yaxt = 'n')
+  
+  lines(line_data$y ~ line_data$x, lwd = 2, lty = 1, col = "#1b9e77")
+  lines(line_data$upper ~ line_data$x)
+  lines(line_data$lower ~ line_data$x)
+  polygon(c(line_data$x, rev(line_data$x)), 
+          c(line_data$upper, rev(line_data$lower)),
+          col = addTrans("#68EBC4",30), border = NA)
+  
+  points(points_data$y ~ points_data$x,
+         pch = 21, col = "#1b9e77", bg = "#1b9e77")
+  
+  axis(side = 1)
+  axis(side = 2, at = axTicks(2), labels = axTicks(2)*100)
+  mtext(text = var, side = 1, line = 2.2)
+  mtext(text = "Understory cover (%)", side = 2, outer = TRUE, line = 2, cex = 1)
+  mtext(text = "(a)", side = 1, line = -10, adj = 0.05)
 
+}
 
-plot.new()
-legend("topright", legend = c("Cheatgrass", "Per. Grass", "Per. Forb", "Shrub"), 
-       lty = 1, pch = c(21,22,23,24), lwd = 2, cex = 1.3, col = c("#1b9e77", "#000000", "#E69F00", "#56B4E9"),
-       pt.bg = c("#1b9e77", "#000000", "#E69F00", "#56B4E9"))
+plot(NA)
 
-plot(NA,
-     ylim = c(0,.02),
-     xlim = c(min(plot_data$Delta_tc), max(plot_data$Delta_tc)),
-     xlab = "",
-     ylab = "",
-     bg='grey60',
-     col = 'grey30',
-     pch = 21,
-     cex.lab = 1.5,
-     bty = 'n',
-     xaxt = 'n',
-     yaxt = 'n')
-lines(inv.as(preds_tc_10_cg$predictions) ~ I(preds_tc_10_cg$predictor), lwd = 2, lty = 1, col = "#1b9e77")
-points(I(preds_tc_10_cg$predictor[c(1,200)]), inv.as(preds_tc_10_cg$predictions[c(1,200)]), pch = 21, col = "#1b9e77", bg = "#1b9e77")
+for(i in 1:3){
+  
+  eff <- Effect(model, partial.residuals = TRUE, focal.predictors = c("Delta_tc", "cwd_normal_cum"),
+                xlevels = list(Delta_tc = 100),
+                quantiles = c(0.1, 0.5, 0.9))
+  
+  cwd_levels <- eff$variables$cwd_normal_cum$levels
+  
+  line_data <- data.frame(y = inv.as(eff$fit[1:99 + (i-1) * 100]),
+                          lower = inv.as(eff$lower[1:99 + (i-1) * 100]),
+                          upper = inv.as(eff$upper[1:99 + (i-1) * 100]),
+                          x = eff[["x"]][["Delta_tc"]][1:99 + (i-1) * 100]
+  )
+  
+  x_new <- eff[["x"]][["Delta_tc"]]
+  x_orig_all <- eff[["x.all"]]
+  which_x <- x_orig_all$cwd_normal_cum - cwd_levels[i] < 0.001
+  x_orig <- x_orig_all[which_x, ][["Delta_tc"]]
+  
+  y_trans <- eff$fit[1:99 + (i-1) * 100]
+  
+  fitted <- y_trans[closest(x_orig, x_new)] #match original data to the nearest new x value, so
+  # that we can find the closest fitted value and add the residual for that 
+  
+  p_resids <- inv.as(eff$residuals[which_x] + fitted)
+  
+  points_data <- data.frame(x = x_orig,
+                            y = p_resids)
+  
+  plot(NA,
+       ylim = c(0, max(c(y, points_data$y), na.rm = TRUE)),
+       xlim = c(min(x_new), max(x_new)),
+       xlab = "",
+       ylab = "",
+       bg='grey60',
+       col = 'grey30',
+       pch = 21,
+       cex.lab = 1.5,
+       bty = 'n',
+       xaxt = 'n',
+       yaxt = 'n')
+  
+  lines(line_data$y ~ line_data$x, lwd = 2, lty = 1, col = "#1b9e77")
+  lines(line_data$upper ~ line_data$x)
+  lines(line_data$lower ~ line_data$x)
+  polygon(c(line_data$x, rev(line_data$x)), 
+          c(line_data$upper, rev(line_data$lower)),
+          col = addTrans("#68EBC4",30), border = NA)
+  
+  points(points_data$y ~ points_data$x,
+         pch = 21, col = "#1b9e77", bg = "#1b9e77")
+  
+  axis(side = 1)
+  axis(side = 2, at = axTicks(2), labels = axTicks(2)*100)
+  mtext(text = var, side = 1, line = 2.2)
+  mtext(text = "Understory cover (%)", side = 2, outer = TRUE, line = 2, cex = 1)
+  mtext(text = "(a)", side = 1, line = -10, adj = 0.05)
 
-axis(side = 1)
-axis(side = 2, at = axTicks(2), labels = axTicks(2)*100)
-text(x = -30, y = .018, labels = "10% CWD", cex = 1.3)
-mtext(text = "(c)", side = 1, line = -10, adj = 0.05)
-
-plot(NA,
-     ylim = c(0,.02),
-     xlim = c(min(plot_data$Delta_tc), max(plot_data$Delta_tc)),
-     xlab = "",
-     ylab = "",
-     bg='grey60',
-     col = 'grey30',
-     pch = 21,
-     cex.lab = 1.5,
-     bty = 'n',
-     xaxt = 'n',
-     yaxt = 'n')
-lines(inv.as(preds_tc_50_cg$predictions) ~ I(preds_tc_90_cg$predictor), lwd = 2, lty = 1, col = "#1b9e77")
-points(I(preds_tc_90_cg$predictor[c(1,200)]), inv.as(preds_tc_50_cg$predictions[c(1,200)]), pch = 21, col = "#1b9e77", bg = "#1b9e77")
-
-axis(side = 1)
-axis(side = 2, at = axTicks(2), labels = axTicks(2)*100)
-text(x = -30, y = .018, labels = "50% CWD", cex = 1.3)
-mtext(text = "Change in live canopy (%)", side = 1, line = 2.2)
-mtext(text = "(d)", side = 1, line = -10, adj = 0.05)
-
-
-plot(NA,
-     ylim = c(0,.02),
-     xlim = c(min(plot_data$Delta_tc), max(plot_data$Delta_tc)),
-     xlab = "",
-     ylab = "",
-     bg='grey60',
-     col = 'grey30',
-     pch = 21,
-     cex.lab = 1.5,
-     bty = 'n',
-     xaxt = 'n',
-     yaxt = 'n')
-lines(inv.as(preds_tc_90_cg$predictions) ~ I(preds_tc_90_cg$predictor), lwd = 2, lty = 1, col = "#1b9e77")
-points(I(preds_tc_90_cg$predictor[c(1,200)]), inv.as(preds_tc_90_cg$predictions[c(1,200)]), pch = 21, col = "#1b9e77", bg = "#1b9e77")
-
-axis(side = 1)
-axis(side = 2, at = axTicks(2), labels = axTicks(2)*100)
-text(x = -30, y = .018, labels = "90% CWD", cex = 1.3)
-mtext(text = "(e)", side = 1, line = -10, adj = 0.05)
-
+}
 
 dev.off()
+

@@ -28,6 +28,9 @@ daub[daub$Cover.type == "Shrub ", "Cover.type"] <- "Shrub"
 trees <- read.csv("./raw data/trees_updated_with_logs_041716.csv")
 tree_pdc <- read.csv("./raw data/all_trees_with_delta_and_ENN_041916.csv")
 
+# individual tree data from Greenwood and Weisberg 2008
+greenwood_trees <- read.csv("./raw data/Individual_TreeData_AllData_SF_edits.csv")
+
 # 2005 understory data, from Greenwood and Weisberg, 2008, 
 # Density-dependent tree mortality in pinyon-juniper woodlands, FEM
 greenwood_under <- read.csv("./raw data/Greenwood_Understory_Variables_SF_edits.csv")
@@ -39,8 +42,11 @@ tcover <- read.csv("./raw data/tree_and_shrub_cover_020815.csv")
 # 2005 tree cover and other variables from Greenwood and Weisberg 2008
 greenwood_tree_cover <- read.csv("./raw data/Structure_vs_environmental_all_data_SF_edits.csv")
   
-# individual tree data from Greenwood and Weisberg 2008
-greenwood_trees <- read.csv("./raw data/Individual_TreeData_AllData_SF_edits.csv")
+# calculate basal area of ingrowths
+# in_ba <- aggregate(trees[trees$Code == "P", "BA_m2_per_ha"], 
+#           by = list(trees[trees$Code == "P", "Plot"]), FUN = sum)
+# names(in_ba) <- c("Plot", "In_ba")
+# in_ba_data <-  join(in_ba, plot_data, by = c("Plot"))
 
 # soil data
 source("./calculate_awc.R")
