@@ -217,9 +217,11 @@ system.time(#takes about a half hour
   
 for(type in types){
   
+  #subset by functional type
   plot_to_use_type <- subset(elect_results[[type]], !is.na(Dead))$Plot
   nplots <- length(plot_to_use_type)
   
+  #iterate nit times
   for(j in 1:nit){
     
     #temporary storage for each iteration
@@ -313,15 +315,19 @@ results_boots[[i]][2, ] <- pvals
 }
 
 #save and read results depending on what you need
+saveRDS(elect_means, "./outputs/elect_means.rds")
 saveRDS(results_boots, paste0("./outputs/results_boots_", n_plots, "dead.rds"))
 
-# results_boots <- readRDS("./outputs/results_boots_1dead.rds")
+elect_means <- readRDS("./outputs/elect_means.rds")
+results_boots <- readRDS("./outputs/results_boots_1dead.rds")
 
 
 #-----------------------------------------------------------------------------------------------
 # Summary table
 #-----------------------------------------------------------------------------------------------
+
 summary <- as.data.frame(matrix(nrow = 15, ncol = 8))
+
 for(i in 1:5){
   for(j in 1:6){
     summary[3*i - 2, j+2] <- results_boots[[i]][[j]][[1]]
@@ -340,7 +346,7 @@ write.csv(summary, "./outputs/electivity summary table.csv")
 # Figure 5
 #-----------------------------------------------------------------------------------------------
 
-tiff(filename="./outputs/Figure_5_electivity_test.tiff", 
+tiff(filename="./outputs/Figure_5_electivity.tiff", 
     type="cairo",
     units="in", 
     width = 4, 

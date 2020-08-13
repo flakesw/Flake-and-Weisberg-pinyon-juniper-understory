@@ -20,11 +20,11 @@ source('addTrans.R', echo=FALSE)
 # Some other global variables are also needed, like the raw plot_data data frame.
 # Bad practices but I didn't think it was worth refactoring this thing. 
 
-all <- all_plot_noscale_tc
-cg <- cheatgrass_plot_noscale
-pg <- pgrass_plot_noscale
-pf <- pforb_plot_noscale
-sh <- shrub_plot_noscale
+all <- all_plot
+cg <- cheatgrass_plot
+pg <- pgrass_plot
+pf <- pforb_plot
+sh <- shrub_plot
 
 # function to calculate standard errors for a given vcov matrix and row of x values, to get
 # point estimates of prediction error for a given prediction. See http://www.ats.ucla.edu/stat/r/faq/deltamethod.htm
@@ -48,8 +48,8 @@ closest <- function(x, x0){
 # All understory vegetation, just two panels
 # Figure 3
 #####################################################################
-vars <- c("Tree_cover", "Delta_tc")
-labels <- c("Tree cover", "Change in tree cover (%)")
+vars <- c("Tree_cover", "Delta_pdc")
+labels <- c("Tree cover", "Change in canopy (%)")
 
 tiff(filename="./outputs/Figure_3_all_understory_effects.tiff", 
      type="cairo",
@@ -65,7 +65,7 @@ par(mfrow = c(2,1), oma = c(2,3,0,0), mar = c(3,1,1,1), bty = 'n')
 for(i in c(1:2)){
   var <- vars[i]
   
-  eff <- Effect(all_plot_tc, partial.residuals = TRUE, focal.predictors = var)
+  eff <- Effect(all_plot, partial.residuals = TRUE, focal.predictors = var)
   
   y <- eff$fit
   x <- eff$x[[var]]
@@ -111,8 +111,8 @@ tc_sd <- sd(plot_data$Tree_cover)
 cwd_mean <-  mean(plot_data$cwd_normal_cum)
 cwd_sd <- sd(plot_data$cwd_normal_cum)
 
-Delta_tc_mean <-  mean(plot_data$Delta_tc)
-Delta_tc_sd <- sd(plot_data$Delta_tc)
+Delta_pdc_mean <-  mean(plot_data$Delta_tc)
+Delta_pdc_sd <- sd(plot_data$Delta_tc)
 
 #--------------------------------------------------------------------------
 ## Calcuate partial residuals, effects
@@ -121,35 +121,35 @@ Delta_tc_sd <- sd(plot_data$Delta_tc)
 C_tc <- data.frame(
   Tree_cover = seq(min(plot_data$Tree_cover), max(plot_data$Tree_cover), length.out = 200),
   cwd_normal_cum = mean(plot_data$cwd_normal_cum),
-  Delta_tc = mean(plot_data$Delta_tc),
+  Delta_pdc = mean(plot_data$Delta_pdc),
   AWC = mean(plot_data$AWC)
 )
 
 C_awc <- data.frame(
   Tree_cover = mean(plot_data$Tree_cover),
   cwd_normal_cum = mean(plot_data$cwd_normal_cum),
-  Delta_tc = mean(plot_data$Delta_tc),
+  Delta_pdc = mean(plot_data$Delta_pdc),
   AWC = seq(min(plot_data$AWC), max(plot_data$AWC), length.out = 200)
 )
 
 C_tc_10 <- data.frame(
   Tree_cover = mean(plot_data$Tree_cover),
   cwd_normal_cum = unname(quantile(plot_data$cwd_normal_cum, .1)),
-  Delta_tc = seq(min(plot_data$Delta_tc), max(plot_data$Delta_tc), length.out = 200),
+  Delta_pdc = seq(min(plot_data$Delta_pdc), max(plot_data$Delta_pdc), length.out = 200),
   AWC = mean(plot_data$AWC)
 )
 
 C_tc_50 <- data.frame(
   Tree_cover = mean(plot_data$Tree_cover),
   cwd_normal_cum = unname(quantile(plot_data$cwd_normal_cum, .5)),
-  Delta_tc = seq(min(plot_data$Delta_tc), max(plot_data$Delta_tc), length.out = 200),
+  Delta_pdc = seq(min(plot_data$Delta_pdc), max(plot_data$Delta_pdc), length.out = 200),
   AWC = mean(plot_data$AWC)
 )
 
 C_tc_90 <- data.frame(
   Tree_cover = mean(plot_data$Tree_cover),
   cwd_normal_cum = unname(quantile(plot_data$cwd_normal_cum, .9)),
-  Delta_tc = seq(min(plot_data$Delta_tc), max(plot_data$Delta_tc), length.out = 200),
+  Delta_pdc = seq(min(plot_data$Delta_pdc), max(plot_data$Delta_pdc), length.out = 200),
   AWC = mean(plot_data$AWC)
 )
 
@@ -180,20 +180,20 @@ preds_awc_pg <- calculate_preds(pg, C_awc, "AWC")
 preds_awc_pf <- calculate_preds(pf, C_awc, "AWC")
 preds_awc_sh <- calculate_preds(sh, C_awc, "AWC")
 
-preds_tc_10_cg <- calculate_preds(cg, C_tc_10, "Delta_tc")
-preds_tc_10_pg <- calculate_preds(pg, C_tc_10, "Delta_tc")
-preds_tc_10_pf <- calculate_preds(pf, C_tc_10, "Delta_tc")
-preds_tc_10_sh <- calculate_preds(sh, C_tc_10, "Delta_tc")
+preds_tc_10_cg <- calculate_preds(cg, C_tc_10, "Delta_pdc")
+preds_tc_10_pg <- calculate_preds(pg, C_tc_10, "Delta_pdc")
+preds_tc_10_pf <- calculate_preds(pf, C_tc_10, "Delta_pdc")
+preds_tc_10_sh <- calculate_preds(sh, C_tc_10, "Delta_pdc")
 
-preds_tc_50_cg <- calculate_preds(cg, C_tc_50, "Delta_tc")
-preds_tc_50_pg <- calculate_preds(pg, C_tc_50, "Delta_tc")
-preds_tc_50_pf <- calculate_preds(pf, C_tc_50, "Delta_tc")
-preds_tc_50_sh <- calculate_preds(sh, C_tc_50, "Delta_tc")
+preds_tc_50_cg <- calculate_preds(cg, C_tc_50, "Delta_pdc")
+preds_tc_50_pg <- calculate_preds(pg, C_tc_50, "Delta_pdc")
+preds_tc_50_pf <- calculate_preds(pf, C_tc_50, "Delta_pdc")
+preds_tc_50_sh <- calculate_preds(sh, C_tc_50, "Delta_pdc")
 
-preds_tc_90_cg <- calculate_preds(cg, C_tc_90, "Delta_tc")
-preds_tc_90_pg <- calculate_preds(pg, C_tc_90, "Delta_tc")
-preds_tc_90_pf <- calculate_preds(pf, C_tc_90, "Delta_tc")
-preds_tc_90_sh <- calculate_preds(sh, C_tc_90, "Delta_tc")
+preds_tc_90_cg <- calculate_preds(cg, C_tc_90, "Delta_pdc")
+preds_tc_90_pg <- calculate_preds(pg, C_tc_90, "Delta_pdc")
+preds_tc_90_pf <- calculate_preds(pf, C_tc_90, "Delta_pdc")
+preds_tc_90_sh <- calculate_preds(sh, C_tc_90, "Delta_pdc")
 
 opar <- par(no.readonly = TRUE)
 par(opar)
@@ -274,7 +274,7 @@ legend("topright", legend = c("Cheatgrass", "Per. Grass", "Per. Forb", "Shrub"),
 
 plot(NA,
      ylim = c(0,.25),
-     xlim = c(min(plot_data$Delta_tc), max(plot_data$Delta_tc)),
+     xlim = c(min(plot_data$Delta_pdc), max(plot_data$Delta_pdc)),
      xlab = "",
      ylab = "",
      bg='grey60',
@@ -300,7 +300,7 @@ mtext(text = "(c)", side = 1, line = -10, adj = 0.05)
 
 plot(NA,
      ylim = c(0,.25),
-     xlim = c(min(plot_data$Delta_tc), max(plot_data$Delta_tc)),
+     xlim = c(min(plot_data$Delta_pdc), max(plot_data$Delta_pdc)),
      xlab = "",
      ylab = "",
      bg='grey60',
@@ -328,7 +328,7 @@ mtext(text = "(d)", side = 1, line = -10, adj = 0.05)
 
 plot(NA,
      ylim = c(0,.25),
-     xlim = c(min(plot_data$Delta_tc), max(plot_data$Delta_tc)),
+     xlim = c(min(plot_data$Delta_pdc), max(plot_data$Delta_pdc)),
      xlab = "",
      ylab = "",
      bg='grey60',

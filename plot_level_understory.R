@@ -6,6 +6,7 @@
 # understory_data_prep.R and does statistical analysis, as well as creating 
 # Figure 1.
 
+#load packages
 library("MuMIn")
 library("lme4")
 library("car")
@@ -15,6 +16,10 @@ library("lmerTest")
 library("vegan")
 library("reshape2")
 library("plyr")
+
+#settings
+set.seed(218218218)
+setwd("C:/Users/Sam/Documents/Research/MS Thesis/Understory/")
 
 # import data created by data prep script
 plot_data <- read.csv("./clean data/plot_data.csv")
@@ -36,6 +41,7 @@ greenwood_under <- read.csv("./raw data/Greenwood_Understory_Variables_SF_edits.
 
 all_plot <- lmer(asin(sqrt(All/100)) ~ scale(Tree_cover) + scale(Delta_pdc)*scale(cwd_normal_cum) +
                           scale(AWC) + (1|Cluster), data = plot_data)
+
 summary(all_plot, ddf = "Kenward-Roger")
 r.squaredGLMM(all_plot)
 plot(allEffects(all_plot, partial.residuals = TRUE))
@@ -45,7 +51,7 @@ scatter.smooth(residuals(all_plot) ~ predict(all_plot))
 
 ## Cheatgrass
 
-cheatgrass_plot <- lmer(asin(sqrt(Cheatgrass/100)) ~ scale(Tree_cover) + scale(Delta_pdc)*scale(cwd_normal_cum) +
+cheatgrass_plot <- lmer(asin(sqrt(Cheatgrass/100)) ~ scale(Tree_cover) + scale(Delta_pdc)+scale(cwd_normal_cum) +
                           scale(AWC) + (1|Cluster), data = plot_data)
 summary(cheatgrass_plot, ddf = "Kenward-Roger")
 r.squaredGLMM(cheatgrass_plot)
@@ -166,11 +172,11 @@ summary(s_change_lm)
 
 ######################
 # Plot of comparisons between 2005 and 2015
-# Figure 1
+# Figure 2
 ######################
 opar <- par(no.readonly = TRUE)
 
-tiff(filename="./outputs/Figure_1_change_in_cover.tif", 
+tiff(filename="./outputs/Figure_2_change_in_cover.tif", 
     type="cairo",
     units="in", 
     width = 4, 
@@ -190,7 +196,7 @@ plot(compare$Pgrass ~ compare$Perrenial.Grass.Cover, xlim = c(0,35), ylim = c(0,
      bg='grey60',
      col = 'grey30',
      pch = 21,
-     cex = 1.5,
+     cex = 0.7,
      cex.axis = .8,
      cex.main = 1.3)
   axis(side = 1, at = c(0,10,20,30), labels = TRUE)
@@ -205,7 +211,7 @@ plot(compare$Cheatgrass ~ compare$Cheatgrass.Cover, xlim = c(0, 20), ylim = c(0,
        bg='grey60',
        col = 'grey30',
        pch = 21,
-       cex = 1.5,
+       cex = 0.7,
        cex.axis = .8,
        cex.main = 1.3)
   axis(side = 1, at = c(0,5,10,15,20), labels = TRUE)
@@ -221,7 +227,7 @@ plot(compare$Pforb ~ compare$Forb.Cover, xlim = c(0, 12), ylim = c(0, 12),
      bg='grey60',
      col = 'grey30',
      pch = 21,
-     cex = 1.5,
+     cex = 0.7,
      cex.axis = .8,
      cex.main = 1.3)
   axis(side = 1, at = c(0,4,8,12), labels = TRUE)
@@ -237,7 +243,7 @@ plot(compare$Shrub ~ compare$Shrub.Cover.Total, xlim = c(0, 30), ylim = c(0,30),
      bg='grey60',
      col = 'grey30',
      pch = 21,
-     cex = 1.5,
+     cex = 0.7,
      cex.axis = .8,
      cex.main = 1.3)
   axis(side = 1, at = c(0,10,20,30), labels = TRUE)
@@ -258,89 +264,6 @@ par(opar)
 
 
 
-#----------------------------------------------------------------------------------------
-# Redo the analysis with change in tree cover
-#----------------------------------------------------------------------------------------
-#---------------------------------------------------------------
-#linear mixed effects models for functional groups at plot level
-#-------------------------------------------------------------------
-
-## all understory vegetation
-
-all_plot_tc <- lmer(asin(sqrt(All/100)) ~ scale(Tree_cover) + scale(Delta_tc)*scale(cwd_normal_cum) +
-                   scale(AWC) + (1|Cluster), data = plot_data)
-
-
-all_plot_noscale_tc <- lmer(asin(sqrt(All/100)) ~ Tree_cover + Delta_tc*cwd_normal_cum +
-                   AWC + (1|Cluster), data = plot_data)
-
-summary(all_plot_tc, ddf = "Kenward-Roger")
-r.squaredGLMM(all_plot_tc)
-plot(allEffects(all_plot_tc, partial.residuals = TRUE))
-plot(all_plot_tc)
-AICc(all_plot_tc)
-scatter.smooth(residuals(all_plot_tc) ~ predict(all_plot_tc))
-
-## Cheatgrass
-
-cheatgrass_plot_tc <- lmer(asin(sqrt(Cheatgrass/100)) ~ scale(Tree_cover) + scale(Delta_tc) * scale(cwd_normal_cum) +
-                          scale(AWC) + (1|Cluster), data = plot_data)
-
-cheatgrass_plot_noscale_tc <- lmer(asin(sqrt(Cheatgrass/100)) ~ Tree_cover + Delta_tc*cwd_normal_cum +
-                          AWC + (1|Cluster), data = plot_data)
-
-summary(cheatgrass_plot_tc, ddf = "Kenward-Roger")
-r.squaredGLMM(cheatgrass_plot_tc)
-plot(allEffects(cheatgrass_plot_noscale_tc, partial.residuals = TRUE))
-plot(cheatgrass_plot_tc)
-AICc(cheatgrass_plot_tc)
-scatter.smooth(residuals(cheatgrass_plot_tc) ~ predict(cheatgrass_plot_tc))
-
-## Perr grass
-
-pgrass_plot_tc <- lmer(asin(sqrt(Pgrass/100)) ~ scale(Tree_cover) + scale(Delta_tc)*scale(cwd_normal_cum) +
-                      scale(AWC) + (1|Cluster), data = plot_data)
-
-pgrass_plot_noscale_tc <- lmer(asin(sqrt(Pgrass/100)) ~ Tree_cover + Delta_tc*cwd_normal_cum +
-                      AWC + (1|Cluster), data = plot_data)
-
-summary(pgrass_plot_tc, ddf = "Kenward-Roger")
-r.squaredGLMM(pgrass_plot_tc)
-plot(allEffects(pgrass_plot_tc, partial.residuals = TRUE))
-plot(pgrass_plot_tc)
-scatter.smooth(residuals(pgrass_plot_tc) ~ predict(pgrass_plot_tc))
-
-
-## Perr forbs
-
-pforb_plot_tc <- lmer(asin(sqrt(Pforb/100)) ~ scale(Tree_cover) + scale(Delta_tc)*scale(cwd_normal_cum) +
-                     scale(AWC) + (1|Cluster), data = plot_data)
-pforb_plot_noscale_tc <- lmer(asin(sqrt(Pforb/100)) ~ Tree_cover + Delta_tc*cwd_normal_cum +
-                     AWC + (1|Cluster), data = plot_data)
-
-summary(pforb_plot_tc, ddf = "Kenward-Roger")
-r.squaredGLMM(pforb_plot_tc)
-plot(allEffects(pforb_plot_tc, partial.residuals = TRUE))
-plot(inv.as(predict(pforb_plot_tc)) ~ I(plot_data$Pforb/100))
-abline(0,1)
-plot(pforb_plot_tc)
-scatter.smooth(residuals(pforb_plot_tc) ~ predict(pforb_plot_tc))
-
-
-## Shrubs
-shrub_plot_tc <- lmer(asin(sqrt(Shrub_cover_li)) ~ scale(Tree_cover) + scale(Delta_tc)*scale(cwd_normal_cum) +
-                     scale(AWC) + (1|Cluster), data = plot_data)
-
-shrub_plot_noscale_tc <- lmer(asin(sqrt(Shrub_cover_li)) ~ Tree_cover + Delta_tc*cwd_normal_cum +
-                     AWC + (1|Cluster), data = plot_data)
-
-
-summary(shrub_plot_tc, ddf = "Kenward-Roger")
-r.squaredGLMM(shrub_plot_tc)
-plot(allEffects(shrub_plot_tc, partial.residuals = TRUE))
-plot(inv.as(predict(shrub_plot_tc)) ~ I(plot_data$Shrub_cover_li))
-abline(0,1)
-
 #-----------------------------------------------
 # Comparison between 2005 and 2015 samples
 #-----------------------------------------------
@@ -359,12 +282,10 @@ t.test(compare$Cheatgrass, compare$Cheatgrass.Cover, paired = TRUE, alternative=
 cor.test(compare$Cheatgrass - compare$Cheatgrass.Cover, compare$cwd_normal_cum, method = "pearson",
          alternative = "two.sided", exact = FALSE)
 
-#linear model of log change ~ delta pdc and cwd
-compare <- compare[-c(5, 10), ] #outlier to remove?
+cg_change_lm <- lm(I((Cheatgrass - Cheatgrass.Cover)/100) ~ Delta_pdc*cwd_normal_cum, data= compare)
 
-cg_change_lm <- lm(I((Cheatgrass - Cheatgrass.Cover)/100) ~ Delta_tc*cwd_normal_cum, data= compare)
 cg_change_lm_no_outliers <- lm(I((Cheatgrass - Cheatgrass.Cover)/100) ~ 
-                                 Delta_tc + cwd_normal_cum, data= compare[-c(5,10), ])
+                                 Delta_pdc*cwd_normal_cum, data= compare[-c(5,10), ])
 
 summary(cg_change_lm)
 plot(cg_change_lm)
@@ -390,7 +311,11 @@ mean(compare$Pgrass-compare$Perrenial.Grass.Cover)
 t.test(compare$Pgrass, compare$Perrenial.Grass.Cover, paired = TRUE, alternative="less")
 wilcox.test(compare$Pgrass, compare$Perrenial.Grass.Cover, paired = TRUE, alternative="less")
 
-pg_change_lm <- lm(Pgrass - Perrenial.Grass.Cover ~ Delta_tc*cwd_normal_cum, data= compare)
+pg_change_lm <- lm(Pgrass - Perrenial.Grass.Cover ~ Delta_pdc*cwd_normal_cum, data= compare)
+summary(pg_change_lm)
+plot(allEffects(pg_change_lm, partial.residuals = TRUE))
+
+pg_change_lm <- lm(Pgrass - Perrenial.Grass.Cover ~ dppt, data= compare)
 summary(pg_change_lm)
 plot(allEffects(pg_change_lm, partial.residuals = TRUE))
 
@@ -404,7 +329,7 @@ mean(I(compare$Aforb + compare$Pforb) - compare$Forb.Cover)
 t.test(I(compare$Aforb + compare$Pforb), compare$Forb.Cover, paired = TRUE, alternative="less")
 wilcox.test(I(compare$Aforb + compare$Pforb), compare$Forb.Cover, paired = TRUE, alternative="less")
 
-pf_change_lm <- lm(Aforb + Pforb - Forb.Cover ~ Delta_tc*cwd_normal_cum, data= compare)
+pf_change_lm <- lm(Aforb + Pforb - Forb.Cover ~ Delta_pdc*cwd_normal_cum, data= compare)
 summary(pf_change_lm)
 
 ## Shrub
@@ -419,5 +344,5 @@ t.test(compare$Shrub, compare$Shrub.Cover.Total, paired = TRUE, alternative="les
 wilcox.test(compare$Shrub, compare$Shrub.Cover.Total, paired = TRUE, alternative="less")
 hist(compare$Shrub - I(compare$Shrub.Cover.Total))
 
-s_change_lm <- lm(Shrub - Shrub.Cover.Total ~ Delta_tc*cwd_normal_cum, data= compare)
+s_change_lm <- lm(Shrub - Shrub.Cover.Total ~ Delta_pdc*cwd_normal_cum, data= compare)
 summary(s_change_lm)
