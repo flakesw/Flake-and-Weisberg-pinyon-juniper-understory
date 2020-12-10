@@ -51,7 +51,7 @@ scatter.smooth(residuals(all_plot) ~ predict(all_plot))
 
 ## Cheatgrass
 
-cheatgrass_plot <- lmer(asin(sqrt(Cheatgrass/100)) ~ scale(Tree_cover) + scale(Delta_pdc)+scale(cwd_normal_cum) +
+cheatgrass_plot <- lmer(asin(sqrt(Cheatgrass/100)) ~ scale(Tree_cover) + scale(Delta_pdc)*scale(cwd_normal_cum) +
                           scale(AWC) + (1|Cluster), data = plot_data)
 summary(cheatgrass_plot, ddf = "Kenward-Roger")
 r.squaredGLMM(cheatgrass_plot)
@@ -203,6 +203,7 @@ plot(compare$Pgrass ~ compare$Perrenial.Grass.Cover, xlim = c(0,35), ylim = c(0,
   axis(side = 1, at = c(0,5,15,25,35), tcl = -.24, labels = FALSE)
   axis(side = 2, at = c(0,10,20,30), labels = TRUE)
   axis(side = 2, at = c(0,5,15,25,35), tcl = -.24, labels = FALSE)
+  abline(coef(lm(compare$Pgrass ~ compare$Perrenial.Grass.Cover)))
   abline(0,1, lty = 2, col = 'grey30')
   
 par(mar = c(2,2,2,1))
@@ -222,7 +223,7 @@ plot(compare$Cheatgrass ~ compare$Cheatgrass.Cover, xlim = c(0, 20), ylim = c(0,
   
   
 par(mar = c(2,2,2,1))
-plot(compare$Pforb ~ compare$Forb.Cover, xlim = c(0, 12), ylim = c(0, 12),
+plot(I(compare$Pforb + compare$Aforb) ~ compare$Forb.Cover, xlim = c(0, 12), ylim = c(0, 12),
      main = "Perennial Forb", xlab = "", ylab = "", xaxt = 'n', yaxt = 'n',
      bg='grey60',
      col = 'grey30',
@@ -234,6 +235,7 @@ plot(compare$Pforb ~ compare$Forb.Cover, xlim = c(0, 12), ylim = c(0, 12),
   axis(side = 1, at = c(0,2,6,10), tcl = -.25, labels = FALSE)
   axis(side = 2, at = c(0,4,8,12), labels = TRUE)
   axis(side = 2, at = c(0,2,6,10), tcl = -.25, labels = FALSE)
+  abline(coef(lm(I(compare$Pforb + compare$Aforb) ~ compare$Forb.Cover)))
   abline(0,1, lty = 2, col = 'grey30')
   
 
@@ -253,9 +255,9 @@ plot(compare$Shrub ~ compare$Shrub.Cover.Total, xlim = c(0, 30), ylim = c(0,30),
   abline(0,1, lty = 2, col = 'grey30')
   
 
-
 mtext("2005 Cover (%)", side = 1, outer = TRUE)
 mtext("2015 Cover (%)", side = 2, outer = TRUE)
+
 dev.off()
 
 par(opar)
@@ -302,14 +304,14 @@ mean(compare$log_cg_change[-c(5,10)])
 (compare$log_cg_change[c(10)] - 1.72) / .18
 
 #Perr grass
-plot(compare$Pgrass ~ compare$Perrenial.Grass.Cover)
+plot(log(compare$Pgrass) ~ log(compare$Perrenial.Grass.Cover))
 summary(lm(compare$Pgrass ~ compare$Perrenial.Grass.Cover + 0))
 cor.test(compare$Pgrass, compare$Perrenial.Grass.Cover,
          method = c("spearman"), exact = FALSE)
 boxplot(log(compare$Pgrass/compare$Perrenial.Grass.Cover))
 mean(compare$Pgrass-compare$Perrenial.Grass.Cover)
-t.test(compare$Pgrass, compare$Perrenial.Grass.Cover, paired = TRUE, alternative="less")
-wilcox.test(compare$Pgrass, compare$Perrenial.Grass.Cover, paired = TRUE, alternative="less")
+t.test(compare$Pgrass, compare$Perrenial.Grass.Cover, paired = TRUE)
+wilcox.test(compare$Pgrass, compare$Perrenial.Grass.Cover, paired = TRUE)
 
 pg_change_lm <- lm(Pgrass - Perrenial.Grass.Cover ~ Delta_pdc*cwd_normal_cum, data= compare)
 summary(pg_change_lm)
@@ -326,8 +328,8 @@ cor.test(I(compare$Aforb + compare$Pforb), compare$Forb.Cover,
          method = c("spearman"), exact = FALSE)
 boxplot(I(compare$Aforb + compare$Pforb) - compare$Forb.Cover)
 mean(I(compare$Aforb + compare$Pforb) - compare$Forb.Cover)
-t.test(I(compare$Aforb + compare$Pforb), compare$Forb.Cover, paired = TRUE, alternative="less")
-wilcox.test(I(compare$Aforb + compare$Pforb), compare$Forb.Cover, paired = TRUE, alternative="less")
+t.test(I(compare$Aforb + compare$Pforb), compare$Forb.Cover, paired = TRUE)
+wilcox.test(I(compare$Aforb + compare$Pforb), compare$Forb.Cover, paired = TRUE, exact = FALSE)
 
 pf_change_lm <- lm(Aforb + Pforb - Forb.Cover ~ Delta_pdc*cwd_normal_cum, data= compare)
 summary(pf_change_lm)
@@ -340,9 +342,37 @@ cor.test(compare$Shrub, compare$Shrub.Cover.Total,
          method = c("spearman"), exact = FALSE)
 boxplot(compare$Shrub - compare$Shrub.Cover.Total)
 mean(compare$Shrub - compare$Shrub.Cover.Total)
-t.test(compare$Shrub, compare$Shrub.Cover.Total, paired = TRUE, alternative="less")
-wilcox.test(compare$Shrub, compare$Shrub.Cover.Total, paired = TRUE, alternative="less")
+t.test(compare$Shrub, compare$Shrub.Cover.Total, paired = TRUE)
+wilcox.test(compare$Shrub, compare$Shrub.Cover.Total, paired = TRUE, exact = FALSE)
 hist(compare$Shrub - I(compare$Shrub.Cover.Total))
 
 s_change_lm <- lm(Shrub - Shrub.Cover.Total ~ Delta_pdc*cwd_normal_cum, data= compare)
 summary(s_change_lm)
+
+
+############################################################################################
+# sem
+###########################################################################################
+
+library("lavaan")
+library("semPlot")
+
+sem_data <- plot_data
+sem_data[, sapply(plot_data, is.numeric)] <- lapply(plot_data[, sapply(plot_data, is.numeric)], scale)
+
+full_model <- ' # regressions
+            Shrub ~ cwd_normal_cum + Delta_pdc + dppt + Tree_cover
+            Delta_pdc ~ cwd_normal_cum
+           
+            # latent variable definitions
+            
+            # variances and covariances
+            
+
+            # intercepts
+            
+
+            '
+fit <- sem(full_model, data = sem_data)
+semPaths(object = fit, what = "std", layout = "tree3", residuals = FALSE, nCharNodes = 10, 
+         sizeMan = 12, sizeLat = 12, label.cex = 1.1, edge.label.cex = 1.1)

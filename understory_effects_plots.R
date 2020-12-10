@@ -539,7 +539,7 @@ let <- letters
 panel_labels <- c("10% CWD", "50% CWD", "90% CWD")
 vars <- c("Tree_cover", "AWC", "Delta_pdc", "Delta_pdc", "Delta_pdc")
 x_labels <- c("Tree cover (%)", "Soil AWC (%)", "Mean change in live canopy (%)")
-
+sig <- c(2,2,1,1,1)
 k <- 1
 
 #first two panels: tree cover and AWC
@@ -589,14 +589,14 @@ for(i in 1:2){
        yaxt = 'n')
   
   points(points_data$y ~ points_data$x,
-         pch = 21, cex = 0.7, col = "#1b9e77", bg = "#1b9e77")
+         pch = 21, cex = 0.7, col = "#000000", bg = "#000000")
   
-  lines(line_data$y ~ line_data$x, lwd = 2, lty = 1, col = "#1b9e77")
+  lines(line_data$y ~ line_data$x, lwd = 2, lty = sig[k], col = "#000000")
   lines(line_data$upper ~ line_data$x)
   lines(line_data$lower ~ line_data$x)
   polygon(c(line_data$x, rev(line_data$x)), 
           c(line_data$upper, rev(line_data$lower)),
-          col = addTrans("#68EBC4",30), border = NA)
+          col = addTrans("#000000",30), border = NA)
   
   axis(side = 1)
   axis(side = 2, at = axTicks(2), labels = axTicks(2)*100)
@@ -655,14 +655,14 @@ for(i in 1:3){
        yaxt = 'n')
   
   points(points_data$y ~ points_data$x,
-         pch = 21, cex = 0.7, col = "#1b9e77", bg = "#1b9e77")
+         pch = 21, cex = 0.7, col = "#000000", bg = "#000000")
   
-  lines(line_data$y ~ line_data$x, lwd = 2, lty = 1, col = "#1b9e77")
+  lines(line_data$y ~ line_data$x, lwd = 2, lty = 1, col = "#000000")
   lines(line_data$upper ~ line_data$x)
   lines(line_data$lower ~ line_data$x)
   polygon(c(line_data$x, rev(line_data$x)), 
           c(line_data$upper, rev(line_data$lower)),
-          col = addTrans("#68EBC4",30), border = NA)
+          col = addTrans("#000000",30), border = NA)
   
   axis(side = 1)
   axis(side = 2, at = axTicks(2), labels = axTicks(2)*100)
@@ -706,7 +706,7 @@ let <- letters
 panel_labels <- c("10% CWD", "50% CWD", "90% CWD")
 vars <- c("Tree_cover", "AWC", "Delta_pdc", "Delta_pdc", "Delta_pdc")
 x_labels <- c("Tree cover (%)", "Soil AWC (%)", "Mean change in live canopy (%)")
-
+sig <- c(2,1,1,1,1)
 k <- 1
 
 #first two panels: tree cover and AWC
@@ -758,7 +758,7 @@ for(i in 1:2){
   points(points_data$y ~ points_data$x,
          pch = 21, cex = 0.7, col = "#1b9e77", bg = "#1b9e77")
   
-  lines(line_data$y ~ line_data$x, lwd = 2, lty = 1, col = "#1b9e77")
+  lines(line_data$y ~ line_data$x, lwd = 2, lty = sig[k], col = "#1b9e77")
   lines(line_data$upper ~ line_data$x)
   lines(line_data$lower ~ line_data$x)
   polygon(c(line_data$x, rev(line_data$x)), 
@@ -875,7 +875,7 @@ let <- letters
 panel_labels <- c("10% CWD", "50% CWD", "90% CWD")
 vars <- c("Tree_cover", "AWC", "Delta_pdc", "Delta_pdc", "Delta_pdc")
 x_labels <- c("Tree cover (%)", "Soil AWC (%)", "Mean change in live canopy (%)")
-
+sig <- c(1,2,1,1,1)
 k <- 1
 
 #first two panels: tree cover and AWC
@@ -925,14 +925,14 @@ for(i in 1:2){
        yaxt = 'n')
   
   points(points_data$y ~ points_data$x,
-         pch = 21, cex = 0.7, col = "#1b9e77", bg = "#1b9e77")
+         pch = 21, cex = 0.7, col = "#56B4E9", bg = "#56B4E9")
   
-  lines(line_data$y ~ line_data$x, lwd = 2, lty = 1, col = "#1b9e77")
+  lines(line_data$y ~ line_data$x, lwd = 2, lty = sig[k], col = "#56B4E9")
   lines(line_data$upper ~ line_data$x)
   lines(line_data$lower ~ line_data$x)
   polygon(c(line_data$x, rev(line_data$x)), 
           c(line_data$upper, rev(line_data$lower)),
-          col = addTrans("#68EBC4",30), border = NA)
+          col = addTrans("#56B4E9",30), border = NA)
   
   axis(side = 1)
   axis(side = 2, at = axTicks(2), labels = axTicks(2)*100)
@@ -991,14 +991,14 @@ for(i in 1:3){
        yaxt = 'n')
   
   points(points_data$y ~ points_data$x,
-         pch = 21, cex = 0.7, col = "#1b9e77", bg = "#1b9e77")
+         pch = 21, cex = 0.7, col = "#56B4E9", bg = "#56B4E9")
   
-  lines(line_data$y ~ line_data$x, lwd = 2, lty = 1, col = "#1b9e77")
+  lines(line_data$y ~ line_data$x, lwd = 2, lty = sig[k], col = "#56B4E9")
   lines(line_data$upper ~ line_data$x)
   lines(line_data$lower ~ line_data$x)
   polygon(c(line_data$x, rev(line_data$x)), 
           c(line_data$upper, rev(line_data$lower)),
-          col = addTrans("#68EBC4",30), border = NA)
+          col = addTrans("#56B4E9",30), border = NA)
   
   axis(side = 1)
   axis(side = 2, at = axTicks(2), labels = axTicks(2)*100)
@@ -1045,7 +1045,7 @@ let <- letters
 panel_labels <- c("10% CWD", "50% CWD", "90% CWD")
 vars <- c("Tree_cover", "AWC", "Delta_pdc", "Delta_pdc", "Delta_pdc")
 x_labels <- c("Tree cover (%)", "Soil AWC (%)", "Mean change in live canopy (%)")
-
+sig <- c(1,2,2,2,2)
 k <- 1
 
 #first two panels: tree cover and AWC
@@ -1095,14 +1095,14 @@ for(i in 1:2){
        yaxt = 'n')
   
   points(points_data$y ~ points_data$x,
-         pch = 21, cex = 0.7, col = "#1b9e77", bg = "#1b9e77")
+         pch = 21, cex = 0.7, col = "#E69F00", bg = "#E69F00")
   
-  lines(line_data$y ~ line_data$x, lwd = 2, lty = 1, col = "#1b9e77")
+  lines(line_data$y ~ line_data$x, lwd = 2, lty = sig[k], col = "#E69F00")
   lines(line_data$upper ~ line_data$x)
   lines(line_data$lower ~ line_data$x)
   polygon(c(line_data$x, rev(line_data$x)), 
           c(line_data$upper, rev(line_data$lower)),
-          col = addTrans("#68EBC4",30), border = NA)
+          col = addTrans("#E69F00",30), border = NA)
   
   axis(side = 1)
   axis(side = 2, at = axTicks(2), labels = axTicks(2)*100)
@@ -1161,14 +1161,14 @@ for(i in 1:3){
        yaxt = 'n')
   
   points(points_data$y ~ points_data$x,
-         pch = 21, cex = 0.7, col = "#1b9e77", bg = "#1b9e77")
+         pch = 21, cex = 0.7, col = "#E69F00", bg = "#E69F00")
   
-  lines(line_data$y ~ line_data$x, lwd = 2, lty = 1, col = "#1b9e77")
+  lines(line_data$y ~ line_data$x, lwd = 2, lty = sig[k], col = "#E69F00")
   lines(line_data$upper ~ line_data$x)
   lines(line_data$lower ~ line_data$x)
   polygon(c(line_data$x, rev(line_data$x)), 
           c(line_data$upper, rev(line_data$lower)),
-          col = addTrans("#68EBC4",30), border = NA)
+          col = addTrans("#E69F00",30), border = NA)
   
   axis(side = 1)
   axis(side = 2, at = axTicks(2), labels = axTicks(2)*100)

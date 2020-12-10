@@ -102,8 +102,8 @@ VPD <- round((0.2358 + 1.0694*(VPDm)),4)
 clim_data$vpd<-VPD
 clim_data[clim_data$vpd < 0, "vpd"]<- 0
 
-write.csv(clim_data, file="climate_data_monthly.csv")
-
+write.csv(clim_data, file="./clean data/climate_data_monthly.csv")
+clim_data <- read.csv("./clean data/climate_data_monthly.csv")
 #some code to plot points on top of raster to make sure stuff looks right
 # e <- drawExtent()
 # plot(e)
@@ -112,7 +112,7 @@ write.csv(clim_data, file="climate_data_monthly.csv")
 
 
 #initialize data frame
-clim_ann <- data.frame(plot = rep(unique(climate_month_data$site), each = nyear),
+clim_ann <- data.frame(plot = rep(unique(clim_data$site), each = nyear),
                        year = rep(seq(startyear+1, endyear), times = npoints),
                        Pndjfm = NA,
                        VPDaso = NA,
@@ -146,6 +146,7 @@ for (i in 1:npoints){
     clim_ann$ppt_tot[(i-1) * nyear + j] <- sum(temp[temp$year == (startyear + j), "ppt"])  
     
     clim_ann$vpdmax[(i-1) * nyear + j] <- max(temp[temp$year == (startyear + j), "vpd"])
+    
     }
   
 }
@@ -159,13 +160,17 @@ means_sds <- data.frame(plot = unique(clim_ann$plot),
                         meanlogp = NA,
                         sdlogp = NA,
                         meanvpd = NA,
-                        sdvpd = NA)
+                        sdvpd = NA,
+                        meanppt_tot = NA,
+                        mean_tmean = NA)
 
 
 #Calcualte means and sds to standardize each logP and vpd_tot value
 for (i in 1:102){
   means_sds$meanlogp[i] <- mean(clim_ann[clim_ann$plot == means_sds$plot[i], "logP"])
   means_sds$meanvpd[i] <- mean(clim_ann[clim_ann$plot == means_sds$plot[i], "vpdtot"])
+  means_sds$meanppt_tot[i] <- mean(clim_ann[clim_ann$plot == means_sds$plot[i], "ppt_tot"])
+  means_sds$mean_tmean[i] <- mean(clim_ann[clim_ann$plot == means_sds$plot[i], "tmean"])
   means_sds$sdlogp[i] <- sd(clim_ann[clim_ann$plot == means_sds$plot[i], "logP"])
   means_sds$sdvpd[i] <- sd(clim_ann[clim_ann$plot == means_sds$plot[i], "vpdtot"])
 }
@@ -176,6 +181,9 @@ clim_ann$stdVPD <- NA
 for (i in 1:nrow(clim_ann)){
   clim_ann$stdP[i] <- ((clim_ann$logP[i] - means_sds[means_sds$plot == clim_ann$plot[i], "meanlogp"]) / means_sds[means_sds$plot == clim_ann$plot[i], "sdlogp"])
   clim_ann$stdVPD[i] <- ((clim_ann$vpdtot[i] - means_sds[means_sds$plot == clim_ann$plot[i], "meanvpd"]) / means_sds[means_sds$plot == clim_ann$plot[i], "sdvpd"])
+  clim_ann$MAP_anom[i] <- (clim_ann$ppt_tot[i] - means_sds[means_sds$plot == clim_ann$plot[i], "meanppt_tot"])
+  clim_ann$MAT_anom[i] <-  (clim_ann$tmean[i] - means_sds[means_sds$plot == clim_ann$plot[i], "mean_tmean"])                     
+  
 }
 
 #calculation from williams et al 2013
@@ -184,166 +192,8 @@ clim_ann$fdsi <- .44*clim_ann$stdP - .56*clim_ann$stdVPD
 
 write.csv(clim_ann, file = "./clean data/climate_data_monthly.csv")
 
-
-plot(Pndjfm~ year, data = clim_ann[clim_ann$year >1950, ])
-
-
-###############################################################################
-# FDSI timeseries figure
-# 
-###############################################################################
-clim_ann <- read.csv("./clean data/climate_data_monthly.csv")
-
-library(Hmisc)
-opar <- par()
-
-mean_fdsi <- vector(mode = "numeric", length = nyear)
-for (i in 1:nyear){
-  mean_fdsi[i] <- mean(clim_ann[clim_ann$year == (i + 1895), "fdsi"])
-}
-
-quant25 <- vector(mode = "numeric", length = nyear)
-quant975 <- vector(mode = "numeric", length = nyear)
-for (i in 1:nyear){
-  quant25[i] <- quantile(clim_ann[clim_ann$year == (i + 1895), "fdsi"], 0)
-  quant975[i] <- quantile(clim_ann[clim_ann$year == (i + 1895), "fdsi"], 1)
-}
+#-------------------------------------------------------------------------------
+# Thornthwaite water balance
+#-------------------------------------------------------------------------------
 
 
-startyear_plot <- 1980
-startindex_plot <- 1980-1895
-endyear_plot <- 2019
-endindex_plot <- nyear
-lag_length <- 1
-
-tiff(filename=paste0("./outputs/climate_data_timeseries_", startyear_plot, "-", endyear_plot, ".tiff"), 
-     type="cairo",
-     units="in", 
-     width = 6, 
-     height=4, 
-     pointsize=12,
-     compression = "lzw", 
-     res=600)
-
-
-par(mar = c(5.1, 4.4, 2, 2.1),
-    oma = c(0, .5, 0, 0))
-
-plot(mean_fdsi[c(startindex_plot:endindex_plot)] ~ c(startyear_plot:endyear_plot),
-     ylim = c(-2.5, 2),
-     xlab = "Year",
-     ylab = "FDSI",
-     # main = "FDSI Timeseries",
-     cex = 1,
-     cex.lab = 1.6,
-     cex.main = 2,
-     cex.axis = 1.3,
-     bg='grey60',
-     col = 'grey30',
-     pch = 21)
-minor.tick(nx = 10)
-f3 <- rep(1/lag_length, lag_length)
-#start the moving average early to account for lag length
-y_lag <- stats::filter(mean_fdsi[c((startindex_plot-(lag_length-1)):endindex_plot)], f3, sides=1)
-#plot the moving average line, but offset by two years to account for the NAs produced
-# by filter() for the first few years
-lines(c((startyear_plot-(lag_length-1)):endyear_plot), y_lag, col="darkgray",
-      lty = 1, 
-      lwd = 2.5)
-y_lag2 <- stats::filter(quant25[c((startindex_plot-(lag_length-1)):endindex_plot)], f3, sides=1)
-lines(c((startyear_plot-(lag_length-1)):endyear_plot), y_lag2, col="black")
-y_lag3 <- stats::filter(quant975[c((startindex_plot-(lag_length-1)):endindex_plot)], f3, sides=1)
-lines(c((startyear_plot-(lag_length-1)):endyear_plot), y_lag3, col="black")
-
-abline(h = 0)
-abline(h= -1.41, lty = 2)
-abline(v = 2005, lty = 3)
-arrows(x0 = 2005, x1 = 2005, y0 = 1.5, y1 = 1, lwd = 2, length = 0.1)
-abline(v = 2015, lty = 3)
-arrows(x0 = 2015, x1 = 2015, y0 = 1.5, y1 = 1, lwd = 2, length = 0.1)
-polygon(c(c((startyear_plot-(lag_length-1)):endyear_plot), rev(c((startyear_plot-(lag_length-1)):endyear_plot))),
-        c(y_lag2, rev(y_lag3)),
-        col = addTrans("grey20",40), border = NA)
-
-dev.off()
-
-
-
-###############################################################################
-# ppt timeseries figure
-# 
-###############################################################################
-clim_ann <- read.csv("./clean data/climate_data_monthly.csv")
-
-library(Hmisc)
-opar <- par()
-
-mean_fdsi <- vector(mode = "numeric", length = nyear)
-for (i in 1:nyear){
-  mean_fdsi[i] <- mean(clim_ann[clim_ann$year == (i + 1895), "ppt_tot"])
-}
-
-quant25 <- vector(mode = "numeric", length = nyear)
-quant975 <- vector(mode = "numeric", length = nyear)
-for (i in 1:nyear){
-  quant25[i] <- quantile(clim_ann[clim_ann$year == (i + 1895), "ppt_tot"], 0)
-  quant975[i] <- quantile(clim_ann[clim_ann$year == (i + 1895), "ppt_tot"], 1)
-}
-
-
-startyear_plot <- 1980
-startindex_plot <- 1980-1895
-endyear_plot <- 2019
-endindex_plot <- nyear
-lag_length <- 1
-
-tiff(filename=paste0("./outputs/precip_data_timeseries_", startyear_plot, "-", endyear_plot, ".tiff"), 
-     type="cairo",
-     units="in", 
-     width = 6, 
-     height=4, 
-     pointsize=12,
-     compression = "lzw", 
-     res=600)
-
-
-par(mar = c(5.1, 4.4, 2, 2.1),
-    oma = c(0, .5, 0, 0))
-
-plot(mean_fdsi[c(startindex_plot:endindex_plot)] ~ c(startyear_plot:endyear_plot),
-     ylim = c(0, 600),
-     xlab = "Year",
-     ylab = "Total PPT",
-     # main = "FDSI Timeseries",
-     cex = 1,
-     cex.lab = 1.6,
-     cex.main = 2,
-     cex.axis = 1.3,
-     bg='grey60',
-     col = 'grey30',
-     pch = 21)
-minor.tick(nx = 10)
-f3 <- rep(1/lag_length, lag_length)
-#start the moving average early to account for lag length
-y_lag <- stats::filter(mean_fdsi[c((startindex_plot-(lag_length-1)):endindex_plot)], f3, sides=1)
-#plot the moving average line, but offset by two years to account for the NAs produced
-# by filter() for the first few years
-lines(c((startyear_plot-(lag_length-1)):endyear_plot), y_lag, col="darkgray",
-      lty = 1, 
-      lwd = 2.5)
-y_lag2 <- stats::filter(quant25[c((startindex_plot-(lag_length-1)):endindex_plot)], f3, sides=1)
-lines(c((startyear_plot-(lag_length-1)):endyear_plot), y_lag2, col="black")
-y_lag3 <- stats::filter(quant975[c((startindex_plot-(lag_length-1)):endindex_plot)], f3, sides=1)
-lines(c((startyear_plot-(lag_length-1)):endyear_plot), y_lag3, col="black")
-
-abline(h = 0)
-abline(h= -1.41, lty = 2)
-abline(v = 2005, lty = 3)
-arrows(x0 = 2005, x1 = 2005, y0 = 1.5, y1 = 1, lwd = 2, length = 0.1)
-abline(v = 2015, lty = 3)
-arrows(x0 = 2015, x1 = 2015, y0 = 1.5, y1 = 1, lwd = 2, length = 0.1)
-polygon(c(c((startyear_plot-(lag_length-1)):endyear_plot), rev(c((startyear_plot-(lag_length-1)):endyear_plot))),
-        c(y_lag2, rev(y_lag3)),
-        col = addTrans("grey20",40), border = NA)
-
-dev.off()

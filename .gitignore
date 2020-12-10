@@ -49,24 +49,12 @@ outputs/
 
 # PRISM input data
 Raw data/prism_data/
+
+#gSSURGO 
+Raw data/gssurgo_g_nv/
+
 .RData
 .Rhistory
-.Rproj.user/EAEB7255/console06/INDEX001
-.Rproj.user/EAEB7255/pcs/windowlayoutstate.pper
-.Rproj.user/EAEB7255/sources/prop/2A13C8B0
-.Rproj.user/EAEB7255/sources/prop/8DF0DCEC
-.Rproj.user/EAEB7255/sources/prop/A1FFFDE6
-.Rproj.user/EAEB7255/sources/prop/A30485D9
-.Rproj.user/EAEB7255/sources/prop/AA116D9C
-.Rproj.user/EAEB7255/sources/prop/D455C530
-.Rproj.user/EAEB7255/sources/prop/INDEX
-.Rproj.user/EAEB7255/sources/s-197F81BE/9E5C163F
-.Rproj.user/EAEB7255/sources/s-197F81BE/9E5C163F-contents
-.Rproj.user/EAEB7255/sources/s-197F81BE/BA4339
-.Rproj.user/EAEB7255/sources/s-197F81BE/BA4339-contents
-.Rproj.user/EAEB7255/sources/s-197F81BE/C3F69618
-.Rproj.user/EAEB7255/sources/s-197F81BE/C3F69618-contents
-.Rproj.user/EAEB7255/sources/s-197F81BE/F6A93CBA
-.Rproj.user/EAEB7255/sources/s-197F81BE/F6A93CBA-contents
-.Rproj.user/EAEB7255/sources/s-197F81BE/lock_file
-.Rproj.user/shared/notebooks/paths
+.Rproj.user/
+.Rproj.user
+.Rproj.user\
