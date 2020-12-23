@@ -96,6 +96,8 @@ vangenuchten <- function(qr, qs, a, n, m, h){
   return(1/((1 + (a * h)^n)^m))
 }
 
+soil2 <- soil
+
 soil2$awc <- (soil2$Field_cap - soil2$Perm_wilt)/100
 soil2$awc1 <- soil2$X330 - soil2$X15000
 soil2$awc2 <- soil2$X330.1 - soil2$X15000.1
@@ -115,7 +117,9 @@ for(i in 1:102){
                   brookscorey(ptf_params[i+1, 10], ptf_params[i+1, 11], 
                                ptf_params[i+1, 12], ptf_params[i+1, 13],
                               15000)
-  
+  soil2$X330.4[i] <- brookscorey(ptf_params[i+1, 10], ptf_params[i+1, 11], 
+                              ptf_params[i+1, 12], ptf_params[i+1, 13],
+                              330)
   #campbell shiosawa
   soil2$awc6[i] <- brookscorey(ptf_params[i+1, 15], ptf_params[i+1, 16], 
                                ptf_params[i+1, 17], ptf_params[i+1, 18],
@@ -123,6 +127,9 @@ for(i in 1:102){
                     brookscorey(ptf_params[i+1, 15], ptf_params[i+1, 16], 
                                 ptf_params[i+1, 17], ptf_params[i+1, 18],
                                 15000)
+  soil2$x330.5[i] <- brookscorey(ptf_params[i+1, 15], ptf_params[i+1, 16], 
+                              ptf_params[i+1, 17], ptf_params[i+1, 18],
+                              330)
   #rawls brackensiek
   soil2$awc7[i] <- brookscorey(ptf_params[i+1, 20], ptf_params[i+1, 21], 
                                ptf_params[i+1, 22], ptf_params[i+1, 23],
@@ -130,6 +137,9 @@ for(i in 1:102){
                   brookscorey(ptf_params[i+1, 20], ptf_params[i+1, 21], 
                               ptf_params[i+1, 22], ptf_params[i+1, 23],
                               15000)
+  soil2$x330.6[i] <- brookscorey(ptf_params[i+1, 20], ptf_params[i+1, 21], 
+                              ptf_params[i+1, 22], ptf_params[i+1, 23],
+                              330)
   #williams
   soil2$awc8[i] <- brookscorey(ptf_params[i+1, 25], ptf_params[i+1, 26], 
                                ptf_params[i+1, 27], ptf_params[i+1, 28],
@@ -137,6 +147,9 @@ for(i in 1:102){
                   brookscorey(ptf_params[i+1, 25], ptf_params[i+1, 26], 
                               ptf_params[i+1, 27], ptf_params[i+1, 28],
                               15000)
+  soil2$x330.7[i] <- brookscorey(ptf_params[i+1, 25], ptf_params[i+1, 26], 
+                              ptf_params[i+1, 27], ptf_params[i+1, 28],
+                              330)
   
   #oosterveld_chang
   soil2$awc9[i] <- brookscorey(ptf_params[i+1, 35], ptf_params[i+1, 36], 
@@ -145,6 +158,9 @@ for(i in 1:102){
                   brookscorey(ptf_params[i+1, 35], ptf_params[i+1, 36], 
                               ptf_params[i+1, 37], ptf_params[i+1, 38],
                               15000)
+  soil2$x330.8[i] <- brookscorey(ptf_params[i+1, 35], ptf_params[i+1, 36], 
+                              ptf_params[i+1, 37], ptf_params[i+1, 38],
+                              330)
   #wosten_chang 
   soil2$awc10[i] <- vangenuchten(ptf_params[i+1, 45], ptf_params[i+1, 46], 
                                  ptf_params[i+1, 47], ptf_params[i+1, 48],
@@ -152,6 +168,9 @@ for(i in 1:102){
                     vangenuchten(ptf_params[i+1, 45], ptf_params[i+1, 46], 
                                  ptf_params[i+1, 47], ptf_params[i+1, 48],
                                  ptf_params[i+1, 49], 15000)
+  soil2$x330.9[i] <- vangenuchten(ptf_params[i+1, 45], ptf_params[i+1, 46], 
+                               ptf_params[i+1, 47], ptf_params[i+1, 48],
+                               ptf_params[i+1, 49], 330)
   
   #varallyay
   soil2$awc11[i] <- vangenuchten(ptf_params[i+1, 51], ptf_params[i+1, 52], 
@@ -160,10 +179,12 @@ for(i in 1:102){
                     vangenuchten(ptf_params[i+1, 51], ptf_params[i+1, 52], 
                                  ptf_params[i+1, 53], ptf_params[i+1, 54],
                                  ptf_params[i+1, 55], 15000)
-  
+  soil2$x330.10[i] <- vangenuchten(ptf_params[i+1, 51], ptf_params[i+1, 52], 
+                                ptf_params[i+1, 53], ptf_params[i+1, 54],
+                                ptf_params[i+1, 55], 330)
 }
 
-soil2$mean_awc <- apply(soil2[, c(27:38)], 1, mean)
+soil2$mean_awc <- apply(soil2[, grep("awc", names(soil2))], 1, mean)
+soil2$mean_fc <- apply(soil2[, grep("330", names(soil2))], 1, mean)
 
-
-write.csv(soil2, "./Raw data/soil_")
+write.csv(soil2, "./Raw data/soil_new_awc.csv")

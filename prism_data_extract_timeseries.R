@@ -104,12 +104,6 @@ clim_data[clim_data$vpd < 0, "vpd"]<- 0
 
 write.csv(clim_data, file="./clean data/climate_data_monthly.csv")
 clim_data <- read.csv("./clean data/climate_data_monthly.csv")
-#some code to plot points on top of raster to make sure stuff looks right
-# e <- drawExtent()
-# plot(e)
-# plot(tdrast, add = TRUE)
-# points(sites)
-
 
 #initialize data frame
 clim_ann <- data.frame(plot = rep(unique(clim_data$site), each = nyear),
@@ -123,7 +117,6 @@ clim_ann <- data.frame(plot = rep(unique(clim_data$site), each = nyear),
                        tmax = NA,
                        vpdmax = NA,
                        ppt_tot = NA)
-
 
 
 #extract winter precip and last-fall + current-season VPD
@@ -190,10 +183,72 @@ for (i in 1:nrow(clim_ann)){
 clim_ann$fdsi <- .44*clim_ann$stdP - .56*clim_ann$stdVPD
 
 
-write.csv(clim_ann, file = "./clean data/climate_data_monthly.csv")
-
 #-------------------------------------------------------------------------------
 # Thornthwaite water balance
 #-------------------------------------------------------------------------------
+library("ClimClass")
+library("scPDSI")
+library("dplyr")
+library("purrr")
+library("tidyr")
+library("tibble")
+library("TSstudio")
 
+clim_month <- read.csv("./clean data/climate_data_monthly.csv")
+clim_normals <- clim_month[between(clim_month$year, 1980, 2010), ] %>%
+              stats::aggregate(by = list(.$site), FUN = mean)
+soil <- read.csv("./Raw data/soil_new_awc.csv")
+
+
+latitudes <- as.data.frame(sites@coords)$YCoord
+
+months <- as.factor(month.abb)
+
+tt_vars <- clim_month %>%
+  dplyr::select(site, year, month, ppt, tmean) %>%
+  rename(P = ppt, Tm = tmean)%>%
+  split(.$site) %>%
+  {purrr::pmap(list(series = ., latitude = latitudes, TAW = soil$mean_fc),
+              ~thornthwaite(series = ..1, latitude = ..2, TAW = ..3))}
+
+
+test_site <- "DES1014"
+
+ppt <- tt_vars %>%
+  {purrr::map(., ~pluck(..1, "W_balance", "Precipitation"))} %>%
+  {purrr::map(., ~rownames_to_column(., var = "month"))} %>%
+  {purrr::map(., ~pivot_longer(..1, cols = -month,
+                               names_to = "year",
+                               values_to = "ppt"))} %>%
+  {purrr::map(., ~mutate(..1, month = factor(month, levels = months)))} %>%
+  {purrr::map(., ~arrange(..1, year, month))}
+
+pet  <- tt_vars %>%
+  {purrr::map(., ~pluck(..1, "W_balance", "Et0"))} %>%
+  {purrr::map(., ~rownames_to_column(., var = "month"))} %>%
+  {purrr::map(., ~pivot_longer(..1, cols = -month,
+                               names_to = "year",
+                               values_to = "Et0"))} %>%
+  {purrr::map(., ~mutate(..1, month = factor(month, levels = months)))} %>%
+  {purrr::map(., ~arrange(..1, year, month))}
+
+pdsi <- pmap(list(P = ppt, PE = pet), 
+                    ~pdsi(P = ..1$ppt, PE = ..2$Et0)) %>%
+        map(., ~pluck(..1, "X")) %>%
+        map(., ~ts_reshape(..1)) %>%
+        map(., ~pivot_longer(..1, cols = -month, names_to = "year")) %>%
+        map(., ~arrange(..1, year, month)) %>%
+        bind_rows(. , .id = "column_label") %>%
+        mutate(year = as.numeric(year)) %>%
+        mutate(year = year + 1894)
+        
+
+pdsi_ann <- stats::aggregate(pdsi$value, 
+                             by = list(pdsi$column_label, pdsi$year), 
+                             FUN = mean) %>%
+            `colnames<-`(c("plot", "year", "pdsi"))
+
+clim_ann <- merge(clim_ann, pdsi_ann, by = c("plot", "year"))
+
+write.csv(clim_ann, file = "./clean data/climate_data_yearly.csv")
 
