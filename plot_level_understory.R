@@ -4,7 +4,7 @@
 # Description: this script runs all of the plot-level analysis for the study,
 # not including the electivity analysis. It takes the processed data from
 # understory_data_prep.R and does statistical analysis, as well as creating 
-# Figure 1.
+# Figure 2.
 
 #load packages
 library("MuMIn")
@@ -25,7 +25,8 @@ setwd("C:/Users/Sam/Documents/Research/MS Thesis/Understory/")
 plot_data <- read.csv("./clean data/plot_data.csv")
 plot_data$Delta_tc <- (plot_data$Tree_cover*100 - plot_data$Total_cover)
 plot_data$Delta_ba <- plot_data$Live_ba - plot_data$Live_ba_2005
-plot_data <- plot_data[plot_data$Cluster != "NPELECTRICEEL", ]
+plot_data <- plot_data[plot_data$Cluster != "NPELECTRICEEL", ] #remove new plot without prior data
+
 
 # understory variables from Greenwood and Weisberg 2008
 greenwood_under <- read.csv("./raw data/Greenwood_Understory_Variables_SF_edits.csv")
@@ -348,31 +349,3 @@ hist(compare$Shrub - I(compare$Shrub.Cover.Total))
 
 s_change_lm <- lm(Shrub - Shrub.Cover.Total ~ Delta_pdc*cwd_normal_cum, data= compare)
 summary(s_change_lm)
-
-
-############################################################################################
-# sem
-###########################################################################################
-
-library("lavaan")
-library("semPlot")
-
-sem_data <- plot_data
-sem_data[, sapply(plot_data, is.numeric)] <- lapply(plot_data[, sapply(plot_data, is.numeric)], scale)
-
-full_model <- ' # regressions
-            Shrub ~ cwd_normal_cum + Delta_pdc + dppt + Tree_cover
-            Delta_pdc ~ cwd_normal_cum
-           
-            # latent variable definitions
-            
-            # variances and covariances
-            
-
-            # intercepts
-            
-
-            '
-fit <- sem(full_model, data = sem_data)
-semPaths(object = fit, what = "std", layout = "tree3", residuals = FALSE, nCharNodes = 10, 
-         sizeMan = 12, sizeLat = 12, label.cex = 1.1, edge.label.cex = 1.1)

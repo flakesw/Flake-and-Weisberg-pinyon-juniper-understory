@@ -51,15 +51,19 @@ greenwood_tree_cover <- read.csv("./raw data/Structure_vs_environmental_all_data
 # in_ba_data <-  join(in_ba, plot_data, by = c("Plot"))
 
 # soil data
-source("./calculate_awc.R")
-soil <- calculate_awc(soil_raw = "./raw data/soils_missing_imputed_012016.csv")
+# source("./calculate_awc.R")
+# soil <- calculate_awc(soil_raw = "./raw data/soils_missing_imputed_012016.csv")
+
+soil <- read.csv("./raw data/soil_new_awc.csv")
+names(soil)[c(2, 47)] <- c("Plot", "AWC")
+
 
 # climate data from previous analysis (Flake and Weisberg 2019)
 clim <- read.csv("./raw data/ALL_climate_variables.csv")
   names(clim)[2] <- "Plot"
   
   
-climate_annual <-  read.csv(file = "./clean data/climate_data_monthly.csv")
+climate_annual <-  read.csv(file = "./clean data/climate_data_yearly.csv")
 climate_agg <- data.frame(Plot = unique(climate_annual$plot),
                           dppt = numeric(102),
                           dppt_winter = numeric(102),
@@ -70,7 +74,9 @@ climate_agg <- data.frame(Plot = unique(climate_annual$plot),
 
 for(i in 1:nrow(climate_agg)){
   climate_temp <- climate_annual[climate_annual$plot == climate_agg$Plot[i], ]
+  
   sample_year <- daub[daub$Plot == climate_agg$Plot[i], "sample_year"][1]
+  
   climate_agg[i, "dppt"] <- climate_temp[climate_temp$year == 2005, "ppt_tot"] - 
     climate_temp[climate_temp$year == sample_year, "ppt_tot"]
   climate_agg[i, "dppt_winter"] <-climate_temp[climate_temp$year == 2005, "Pndjfm"] - 

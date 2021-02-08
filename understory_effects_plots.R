@@ -264,7 +264,7 @@ lines(inv.as(preds_awc_pg$predictions) ~ I(preds_awc_cg$predictor), lwd = 2, lty
 points(I(preds_awc_cg$predictor[c(1,200)]), inv.as(preds_awc_pg$predictions[c(1,200)]), pch = 22, col = "#000000", bg = "#000000")
 lines(inv.as(preds_awc_pf$predictions) ~ I(preds_awc_cg$predictor), lwd = 2, lty = 2, col = "#E69F00")
 points(I(preds_awc_cg$predictor[c(1,200)]), inv.as(preds_awc_pf$predictions[c(1,200)]), pch = 23, col = "#E69F00", bg = "#E69F00")
-lines(inv.as(preds_awc_sh$predictions) ~ I(preds_awc_cg$predictor), lwd = 2, lty = 2, col = "#56B4E9")
+lines(inv.as(preds_awc_sh$predictions) ~ I(preds_awc_cg$predictor), lwd = 2, lty = 1, col = "#56B4E9")
 points(I(preds_awc_cg$predictor[c(1,200)]), inv.as(preds_awc_sh$predictions[c(1,200)]), pch = 24, col = "#56B4E9", bg = "#56B4E9")
 
 axis(side = 1)
@@ -601,7 +601,6 @@ for(i in 1:2){
   axis(side = 1)
   axis(side = 2, at = axTicks(2), labels = axTicks(2)*100)
   mtext(text = var, side = 1, line = 2.2)
-  mtext(text = "Understory cover (%)", side = 2, outer = TRUE, line = 2, cex = 1)
   mtext(text = paste0("(", letters[k],")"), side = 1, line = -10, adj = 0.05)
 
   k <- k+1
@@ -667,7 +666,7 @@ for(i in 1:3){
   axis(side = 1)
   axis(side = 2, at = axTicks(2), labels = axTicks(2)*100)
   # mtext(text = "Mean change in tree cover", side = 1, line = 2.2)
-  mtext(text = "Understory cover (%)", side = 2, outer = TRUE, line = 2, cex = 1)
+  mtext(text = "Perennial grass cover (%)", side = 2, outer = TRUE, line = 2, cex = 1)
   mtext(text = paste0("(", letters[k],")"), side = 1, line = -10, adj = 0.05)
   text(x = -30, y = .25, labels = panel_labels[i], cex = 1.2)
 
@@ -768,7 +767,6 @@ for(i in 1:2){
   axis(side = 1)
   axis(side = 2, at = axTicks(2), labels = axTicks(2)*100)
   mtext(text = var, side = 1, line = 2.2)
-  mtext(text = "Understory cover (%)", side = 2, outer = TRUE, line = 2, cex = 1)
   mtext(text = paste0("(", letters[k],")"), side = 1, line = -10, adj = 0.05)
   
   k <- k+1
@@ -834,7 +832,7 @@ for(i in 1:3){
   axis(side = 1)
   axis(side = 2, at = axTicks(2), labels = axTicks(2)*100)
   # mtext(text = "Mean change in tree cover", side = 1, line = 2.2)
-  mtext(text = "Understory cover (%)", side = 2, outer = TRUE, line = 2, cex = 1)
+  mtext(text = "Cheatgrass cover (%)", side = 2, outer = TRUE, line = 2, cex = 1)
   mtext(text = paste0("(", letters[k],")"), side = 1, line = -10, adj = 0.05)
   
   text(x = -30, y = .12, labels = panel_labels[i], cex = 1.2)
@@ -875,7 +873,7 @@ let <- letters
 panel_labels <- c("10% CWD", "50% CWD", "90% CWD")
 vars <- c("Tree_cover", "AWC", "Delta_pdc", "Delta_pdc", "Delta_pdc")
 x_labels <- c("Tree cover (%)", "Soil AWC (%)", "Mean change in live canopy (%)")
-sig <- c(1,2,1,1,1)
+sig <- c(1,1,1,1,1)
 k <- 1
 
 #first two panels: tree cover and AWC
@@ -937,7 +935,6 @@ for(i in 1:2){
   axis(side = 1)
   axis(side = 2, at = axTicks(2), labels = axTicks(2)*100)
   mtext(text = var, side = 1, line = 2.2)
-  mtext(text = "Understory cover (%)", side = 2, outer = TRUE, line = 2, cex = 1)
   mtext(text = paste0("(", letters[k],")"), side = 1, line = -10, adj = 0.05)
   
   k <- k+1
@@ -1003,7 +1000,7 @@ for(i in 1:3){
   axis(side = 1)
   axis(side = 2, at = axTicks(2), labels = axTicks(2)*100)
   # mtext(text = "Mean change in tree cover", side = 1, line = 2.2)
-  mtext(text = "Understory cover (%)", side = 2, outer = TRUE, line = 2, cex = 1)
+  mtext(text = "Shrub cover (%)", side = 2, outer = TRUE, line = 2, cex = 1)
   mtext(text = paste0("(", letters[k],")"), side = 1, line = -10, adj = 0.05)
   
   text(x = -30, y = .5, labels = panel_labels[i], cex = 1.2)
@@ -1107,7 +1104,6 @@ for(i in 1:2){
   axis(side = 1)
   axis(side = 2, at = axTicks(2), labels = axTicks(2)*100)
   mtext(text = var, side = 1, line = 2.2)
-  mtext(text = "Understory cover (%)", side = 2, outer = TRUE, line = 2, cex = 1)
   mtext(text = paste0("(", letters[k],")"), side = 1, line = -10, adj = 0.05)
   
   k <- k+1
@@ -1173,7 +1169,7 @@ for(i in 1:3){
   axis(side = 1)
   axis(side = 2, at = axTicks(2), labels = axTicks(2)*100)
   # mtext(text = "Mean change in tree cover", side = 1, line = 2.2)
-  mtext(text = "Understory cover (%)", side = 2, outer = TRUE, line = 2, cex = 1)
+  mtext(text = "Perennial forb cover (%)", side = 2, outer = TRUE, line = 2, cex = 1)
   mtext(text = paste0("(", letters[k],")"), side = 1, line = -10, adj = 0.05)
   
   text(x = -30, y = .12, labels = panel_labels[i], cex = 1.2)

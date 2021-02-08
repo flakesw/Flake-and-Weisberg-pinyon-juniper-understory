@@ -10,6 +10,8 @@ library(foreign)
 library(plyr)
 source("addTrans.R")
 
+## always run this section regardless
+
 set.seed(218218)
 setwd("C:/Users/Sam/Documents/Research/MS Thesis/Understory/")
 
@@ -30,7 +32,11 @@ npoints <- 102 #number of sites in shapefile
 
 # N <- (endyear - startyear + 1) * length(months) * npoints
 
-#intialize dataframe to catch all the data
+# end of parameters
+
+# read and process climate data
+# intialize dataframe to catch all the data
+
 clim_data <- data.frame(site = character(0),
                        year = numeric(0),
                        month = numeric(0),
@@ -41,6 +47,9 @@ clim_data <- data.frame(site = character(0),
                        )
 
 #double loop through years and months, extract tmean, tdmean, and ppt, at each site each month
+#warning: this may take an hour or more. I wrote it forever ago in a dumb way,
+#but also raster calculations are just slow.
+
 for (j in startyear:endyear){
   
   for(i in 1:length(months)){
@@ -103,6 +112,11 @@ clim_data$vpd<-VPD
 clim_data[clim_data$vpd < 0, "vpd"]<- 0
 
 write.csv(clim_data, file="./clean data/climate_data_monthly.csv")
+
+## import data to run from here
+## make sure to use the right startyear, endyear, nyear. 
+## Check above (line 25-29)
+
 clim_data <- read.csv("./clean data/climate_data_monthly.csv")
 
 #initialize data frame
@@ -125,12 +139,12 @@ for (i in 1:npoints){
   temp <- clim_data[clim_data$site == plot, ] #split out all data for one plot
   
   for (j in 1:nyear){
-    clim_ann$Pndjfm[(i-1) * nyear + j] <- sum(temp[temp$year == (startyear + j) & temp$month %in% c('01', '02', '03'), "ppt"],
+    clim_ann$Pndjfm[(i-1) * nyear + j] <- sum(temp[temp$year == (startyear + j) & temp$month %in% c('1', '2', '3'), "ppt"],
                                             temp[temp$year == (startyear + j - 1) & temp$month %in% c('11', '12'), "ppt"])  
     
-    clim_ann$VPDaso[(i-1) * nyear + j] <- sum(temp[temp$year == (startyear + j - 1) & temp$month %in% c('08', '09', '10'), "vpd"])  
+    clim_ann$VPDaso[(i-1) * nyear + j] <- sum(temp[temp$year == (startyear + j - 1) & temp$month %in% c('8', '9', '10'), "vpd"])  
     
-    clim_ann$VPDmjj[(i-1) * nyear + j] <- sum(temp[temp$year == (startyear + j) & temp$month %in% c('01', '02', '03'), "vpd"])  
+    clim_ann$VPDmjj[(i-1) * nyear + j] <- sum(temp[temp$year == (startyear + j) & temp$month %in% c('5', '6', '7'), "vpd"])  
     
     clim_ann$tmean[(i-1) * nyear + j] <- mean(temp[temp$year == (startyear + j), "tmean"])  
     
@@ -172,17 +186,21 @@ for (i in 1:102){
 clim_ann$stdP <- NA
 clim_ann$stdVPD <- NA
 for (i in 1:nrow(clim_ann)){
-  clim_ann$stdP[i] <- ((clim_ann$logP[i] - means_sds[means_sds$plot == clim_ann$plot[i], "meanlogp"]) / means_sds[means_sds$plot == clim_ann$plot[i], "sdlogp"])
-  clim_ann$stdVPD[i] <- ((clim_ann$vpdtot[i] - means_sds[means_sds$plot == clim_ann$plot[i], "meanvpd"]) / means_sds[means_sds$plot == clim_ann$plot[i], "sdvpd"])
+  clim_ann$stdP[i] <- ((clim_ann$logP[i] - means_sds[means_sds$plot == clim_ann$plot[i], "meanlogp"]) / 
+                         means_sds[means_sds$plot == clim_ann$plot[i], "sdlogp"])
+  clim_ann$stdVPD[i] <- ((clim_ann$vpdtot[i] - means_sds[means_sds$plot == clim_ann$plot[i], "meanvpd"]) / 
+                           means_sds[means_sds$plot == clim_ann$plot[i], "sdvpd"])
   clim_ann$MAP_anom[i] <- (clim_ann$ppt_tot[i] - means_sds[means_sds$plot == clim_ann$plot[i], "meanppt_tot"])
   clim_ann$MAT_anom[i] <-  (clim_ann$tmean[i] - means_sds[means_sds$plot == clim_ann$plot[i], "mean_tmean"])                     
+  clim_ann$MAP_anom_prop[i] <- (clim_ann$ppt_tot[i]/means_sds[means_sds$plot == clim_ann$plot[i], "meanppt_tot"])
+  clim_ann$MAT_anom_prop[i] <-  (clim_ann$tmean[i]/means_sds[means_sds$plot == clim_ann$plot[i], "mean_tmean"])                     
   
 }
 
 #calculation from williams et al 2013
 clim_ann$fdsi <- .44*clim_ann$stdP - .56*clim_ann$stdVPD
 
-
+# write.csv(clim_ann, "clim_ann.csv")
 #-------------------------------------------------------------------------------
 # Thornthwaite water balance
 #-------------------------------------------------------------------------------
@@ -195,24 +213,19 @@ library("tibble")
 library("TSstudio")
 
 clim_month <- read.csv("./clean data/climate_data_monthly.csv")
-clim_normals <- clim_month[between(clim_month$year, 1980, 2010), ] %>%
-              stats::aggregate(by = list(.$site), FUN = mean)
-soil <- read.csv("./Raw data/soil_new_awc.csv")
 
+soil <- read.csv("./Raw data/soil_new_awc.csv")
 
 latitudes <- as.data.frame(sites@coords)$YCoord
 
-months <- as.factor(month.abb)
+months2 <- as.factor(month.abb)
 
 tt_vars <- clim_month %>%
   dplyr::select(site, year, month, ppt, tmean) %>%
-  rename(P = ppt, Tm = tmean)%>%
+  dplyr::rename(P = ppt, Tm = tmean) %>%
   split(.$site) %>%
   {purrr::pmap(list(series = ., latitude = latitudes, TAW = soil$mean_fc),
               ~thornthwaite(series = ..1, latitude = ..2, TAW = ..3))}
-
-
-test_site <- "DES1014"
 
 ppt <- tt_vars %>%
   {purrr::map(., ~pluck(..1, "W_balance", "Precipitation"))} %>%
@@ -220,7 +233,7 @@ ppt <- tt_vars %>%
   {purrr::map(., ~pivot_longer(..1, cols = -month,
                                names_to = "year",
                                values_to = "ppt"))} %>%
-  {purrr::map(., ~mutate(..1, month = factor(month, levels = months)))} %>%
+  {purrr::map(., ~mutate(..1, month = factor(month, levels = months2)))} %>%
   {purrr::map(., ~arrange(..1, year, month))}
 
 pet  <- tt_vars %>%
@@ -229,7 +242,7 @@ pet  <- tt_vars %>%
   {purrr::map(., ~pivot_longer(..1, cols = -month,
                                names_to = "year",
                                values_to = "Et0"))} %>%
-  {purrr::map(., ~mutate(..1, month = factor(month, levels = months)))} %>%
+  {purrr::map(., ~mutate(..1, month = factor(month, levels = months2)))} %>%
   {purrr::map(., ~arrange(..1, year, month))}
 
 pdsi <- pmap(list(P = ppt, PE = pet), 
@@ -242,7 +255,6 @@ pdsi <- pmap(list(P = ppt, PE = pet),
         mutate(year = as.numeric(year)) %>%
         mutate(year = year + 1894)
         
-
 pdsi_ann <- stats::aggregate(pdsi$value, 
                              by = list(pdsi$column_label, pdsi$year), 
                              FUN = mean) %>%
@@ -251,4 +263,3 @@ pdsi_ann <- stats::aggregate(pdsi$value,
 clim_ann <- merge(clim_ann, pdsi_ann, by = c("plot", "year"))
 
 write.csv(clim_ann, file = "./clean data/climate_data_yearly.csv")
-
